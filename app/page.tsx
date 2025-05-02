@@ -8,12 +8,8 @@ import { BlurFade } from '@/components/ui/BlurFade';
 import { PrismaClient } from '@prisma/client';
 import { Key } from 'react';
 
-const prisma = new PrismaClient();
-
 export default async function Home() {
-  const users = await prisma.user.findMany();
-  console.log(users);
-
+ 
   return (
     <>
       <TopMenu />
@@ -89,18 +85,6 @@ export default async function Home() {
               </BlurFade>
             </div>
           </div>
-        </div>
-        Display fetched users
-        <div className="max-w-4xl mx-auto px-5 py-8">
-          <h2 className="text-xl font-bold mb-4">Users</h2>
-          <ul>
-            {users.map((user: { id: Key | null | undefined; name: any; email: any; }) => (
-              <li key={user.id} className="mb-2">
-                <strong>Name:</strong> {user.name || 'N/A'} <br />
-                <strong>Email:</strong> {user.email || 'N/A'}
-              </li>
-            ))}
-          </ul>
         </div>
       </section>
 
