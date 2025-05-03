@@ -148,7 +148,7 @@ export default function PreviewClient({ messageTip }: { messageTip?: string }) {
   );
 
   return (
-    <div className="w-full min-h-screen bg-background flex flex-col gap-4 pb-8">
+    <div className="w-full h-screen bg-background flex flex-col">
       {messageTip && (
         <div className="max-w-3xl mx-auto w-full md:px-0 px-4">
           <div className="bg-amber-50 border border-amber-200 text-amber-800 rounded-md p-4 flex items-start">
@@ -237,7 +237,7 @@ export default function PreviewClient({ messageTip }: { messageTip?: string }) {
         )}
       </div>
 
-      <div className="max-w-3xl mx-auto w-full md:rounded-lg border-[0.5px] border-neutral-300 flex items-center justify-between px-4">
+      <div className="max-w-5xl mx-auto w-full md:rounded-lg border-[0.5px] border-neutral-300 flex items-center justify-between px-4">
         {isEditMode ? (
           <EditResume
             resume={localResumeData}
