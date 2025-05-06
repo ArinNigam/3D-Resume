@@ -72,9 +72,7 @@ export const Player = forwardRef<RigidBody, PlayerProps>((props, ref) => {
             console.log('Player model animations:', names)
         }
     }, [names])
-
-    console.log(names);
-
+    
     // Track previous movement state to only update animation when it changes
     const prevMovingRef = useRef(false)
     // Track the currently playing animation

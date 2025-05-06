@@ -1,13 +1,16 @@
 "use client";
-import { OrbitControls, Environment, Text, Float, Billboard, Grid, Sphere } from '@react-three/drei';
+import { OrbitControls, Environment, Text, Float, Billboard } from '@react-three/drei';
 import { Physics } from '@react-three/rapier';
 import { Ground } from './Ground';
 import { Player } from './Player';
+import { DirectionSign } from './DirectionSign';
 import { useControls } from 'leva';
 import { useRef, useState, useEffect } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { Vector3, PerspectiveCamera } from 'three';
 import { ResumeData } from '../../lib/server/redisActions';
+import React from 'react';
+import { SignBoard } from './SignBoard';
 
 export const Scene = ({ resume }: { resume: ResumeData }) => {
     if (!resume || !resume.workExperience || !resume.education) {
@@ -97,86 +100,28 @@ export const Scene = ({ resume }: { resume: ResumeData }) => {
                 shadow-mapSize={[1024, 1024]}
             />
 
-            {resume.workExperience.map((exp, index) => (
-                <group key={`exp-${index}`} position={[index * 15, 2, 0]}>
-                    <Float speed={1.5} rotationIntensity={0.2} floatIntensity={0.5}>
-                        <Billboard follow={true} lockX={false} lockY={false} lockZ={false}>
-                            <Text
-                                color="gold"
-                                fontSize={0.5}
-                                position={[0, 2, 0]}
-                                anchorX="center"
-                            >
-                                {exp.company}
-                            </Text>
-                            <Text
-                                color="white"
-                                fontSize={0.3}
-                                position={[0, 1.2, 0]}
-                                anchorX="center"
-                            >
-                                {exp.title}
-                            </Text>
-                            <Text
-                                color="white"
-                                fontSize={0.2}
-                                position={[0, 0.6, 0]}
-                                anchorX="center"
-                                maxWidth={4}
-                                textAlign="center"
-                            >
-                                {exp.description}
-                            </Text>
-                            <Text
-                                color="#888888"
-                                fontSize={0.15}
-                                position={[0, 0, 0]}
-                                anchorX="center"
-                            >
-                                {`${exp.start} - ${exp.end}`}
-                            </Text>
-                        </Billboard>
-                    </Float>
-                </group>
+            {/* boards for work experience */}
+            {resume.workExperience.map((exp, idx) => (
+                <SignBoard
+                    key={`board-work-${idx}`}
+                    position={[idx * 15, 4, 0]}
+                    lines={[
+                        exp.company,
+                        exp.title,
+                        `${exp.start} - ${exp.end}`,
+                    ]}
+                />
             ))}
 
-            {resume.education.map((edu, index) => {
-                const position = new Vector3(
-                    (resume.workExperience.length + index) * 15,
-                    2,
-                    0
-                );
+            {/* boards for education */}
+            {resume.education.map((edu, idx) => {
+                const x = (resume.workExperience.length + idx) * 15;
                 return (
-                    <group key={`edu-${index}`} position={position}>
-                        <Float speed={1.5} rotationIntensity={0.2} floatIntensity={0.5}>
-                            <Billboard follow={true} lockX={false} lockY={false} lockZ={false}>
-                                <Text
-                                    color="lightblue"
-                                    fontSize={0.5}
-                                    position={[0, 2, 0]}
-                                    anchorX="center"
-                                >
-                                    {edu.school}
-                                </Text>
-                                <Text
-                                    color="white"
-                                    fontSize={0.3}
-                                    position={[0, 1.2, 0]}
-                                    anchorX="center"
-                                >
-                                    {edu.degree}
-                                </Text>
-                                <Text
-                                    color="#888888"
-                                    fontSize={0.2}
-                                    position={[0, 0.6, 0]}
-                                    anchorX="center"
-                                >
-                                    {`${edu.start} - ${edu.end}`}
-                                </Text>
-                            </Billboard>
-                        </Float>
-                    </group>
+                    <SignBoard
+                        key={`board-edu-${idx}`}
+                        position={[x, 4, 0]}
+                        lines={[edu.school, edu.degree, `${edu.start} - ${edu.end}`]}
+                    />
                 );
             })}
 

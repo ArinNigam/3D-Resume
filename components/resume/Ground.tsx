@@ -1,10 +1,13 @@
 import { RigidBody, CuboidCollider } from '@react-three/rapier'
 import { useControls } from 'leva'
+import { useGLTF } from '@react-three/drei'
 
 export function Ground() {
     const { groundColor } = useControls('Ground', {
         groundColor: 'black'
     })
+    const buildingGltf = useGLTF('/models/building.glb')
+    const treeGltf = useGLTF('/models/tree.glb')
 
     return (
         <RigidBody type="fixed" restitution={0.2} friction={1}>
@@ -12,59 +15,73 @@ export function Ground() {
                 <planeGeometry args={[100, 100]} />
                 <meshStandardMaterial color={groundColor} />
             </mesh>
-            {/* Road along X axis */}
+            {/* Widened road */}
             <mesh receiveShadow position={[0, 0.01, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-                <planeGeometry args={[50, 4]} />
-                <meshStandardMaterial color="#222" />
+                <planeGeometry args={[100, 6]} />
+                <meshStandardMaterial color="#333" />
             </mesh>
-            <CuboidCollider args={[50, 2, 50]} position={[0, -2, 0]} />
+            <CuboidCollider args={[50, 3, 50]} position={[0, -2, 0]} />
 
-            {/* City buildings along both sides of the road */}
+            {/* Sidewalks */}
+            <mesh receiveShadow position={[0, 0.02, 3.5]} rotation={[-Math.PI / 2, 0, 0]}>
+                <planeGeometry args={[100, 1]} />
+                <meshStandardMaterial color="#666" />
+            </mesh>
+            <mesh receiveShadow position={[0, 0.02, -3.5]} rotation={[-Math.PI / 2, 0, 0]}>
+                <planeGeometry args={[100, 1]} />
+                <meshStandardMaterial color="#666" />
+            </mesh>
+
+            {/* Center dashed lane markings */}
+            {Array.from({ length: 25 }).map((_, j) => (
+                <mesh
+                    key={`dash-${j}`}
+                    position={[-50 + (j + 0.5) * (100 / 25), 0.03, 0]}
+                    rotation={[-Math.PI / 2, 0, 0]}
+                >
+                    <planeGeometry args={[2, 0.2]} />
+                    <meshStandardMaterial color="white" />
+                </mesh>
+            ))}
+
+            {/* City buildings along left side */}
             {Array.from({ length: 16 }).map((_, i) => {
-                // Place buildings at intervals along X, on both sides
                 const x = -38 + i * 5;
                 const zLeft = -8;
+
+                // Left side building
+                return (
+                    <primitive
+                        key={`bldg-left-${i}`}
+                        object={buildingGltf.scene.clone()}
+                        position={[x, 0, zLeft]}
+                        castShadow
+                        receiveShadow
+                    />
+                )
+            })}
+
+            {/* Trees along right side */}
+            {Array.from({ length: 16 }).map((_, i) => {
+                const x = -38 + i * 5;
                 const zRight = 8;
-                const width = 3 + Math.random() * 1.5;
-                const depth = 3 + Math.random() * 1.5;
-                const height = 6 + Math.random() * 10;
-                // Window stripes (just a different color band)
-                return [
-                    // Left side building
-                    <group key={`bldg-left-${i}`}>
-                        <mesh position={[x, height / 2, zLeft]} castShadow receiveShadow>
-                            <boxGeometry args={[width, height, depth]} />
-                            <meshStandardMaterial color="#b0b6ba" />
-                        </mesh>
-                        {/* Windows as stripes */}
-                        {Array.from({ length: Math.floor(height / 2) }).map((_, wi) => (
-                            <mesh
-                                key={`win-left-${i}-${wi}`}
-                                position={[x, 1.5 + wi * 2, zLeft + depth / 2 + 0.01]}
-                            >
-                                <boxGeometry args={[width * 0.8, 0.3, 0.05]} />
-                                <meshStandardMaterial color="#e6e9f0" emissive="#b3d0ff" emissiveIntensity={0.5} />
-                            </mesh>
-                        ))}
-                    </group>,
-                    // Right side building
-                    // <group key={`bldg-right-${i}`}>
-                    //   <mesh position={[x, height / 2, zRight]} castShadow receiveShadow>
-                    //     <boxGeometry args={[width, height, depth]} />
-                    //     <meshStandardMaterial color="#b0b6ba" />
-                    //   </mesh>
-                    //   {Array.from({ length: Math.floor(height / 2) }).map((_, wi) => (
-                    //     <mesh
-                    //       key={`win-right-${i}-${wi}`}
-                    //       position={[x, 1.5 + wi * 2, zRight - depth / 2 - 0.01]}
-                    //     >
-                    //       <boxGeometry args={[width * 0.8, 0.3, 0.05]} />
-                    //       <meshStandardMaterial color="#e6e9f0" emissive="#b3d0ff" emissiveIntensity={0.5} />
-                    //     </mesh>
-                    //   ))}
-                    // </group>
-                ]
+
+                // Right side tree (scaled down)
+                return (
+                    <primitive
+                        key={`tree-${i}`}
+                        object={treeGltf.scene.clone()}
+                        position={[x, 0, zRight]}
+                        scale={[0.3, 0.3, 0.3]}     // reduced size
+                        castShadow
+                        receiveShadow
+                    />
+                )
             })}
         </RigidBody>
     )
-} 
+}
+
+// Preload the building model
+useGLTF.preload('/models/building.glb')
+useGLTF.preload('/models/tree.glb')
