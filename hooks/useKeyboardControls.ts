@@ -22,11 +22,11 @@ export const useKeyboardControls = () => {
       switch (event.code) {
         case 'ArrowUp':
         case 'KeyW':
-          // setKeys((keys) => ({ ...keys, forward: true }))
+          setKeys((keys) => ({ ...keys, forward: true }))
           break;
         case 'ArrowDown':
         case 'KeyS':
-          // setKeys((keys) => ({ ...keys, backward: true }))
+          setKeys((keys) => ({ ...keys, backward: true }));
           break;
         case 'ArrowLeft':
         case 'KeyA':
@@ -46,11 +46,11 @@ export const useKeyboardControls = () => {
       switch (event.code) {
         case 'ArrowUp':
         case 'KeyW':
-          // setKeys((keys) => ({ ...keys, forward: false }))
+          setKeys((keys) => ({ ...keys, forward: false }));
           break;
         case 'ArrowDown':
         case 'KeyS':
-          // setKeys((keys) => ({ ...keys, backward: false }))
+          setKeys((keys) => ({ ...keys, backward: false }));
           break;
         case 'ArrowLeft':
         case 'KeyA':
