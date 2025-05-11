@@ -1,4 +1,4 @@
-import { OrbitControls, Text, Float, Billboard, Grid, Sphere, Environment, Edges } from '@react-three/drei'
+import { OrbitControls, Float, Billboard, Grid, Sphere, Environment, Edges, Text as DreiText } from '@react-three/drei'
 import { Physics } from '@react-three/rapier'
 import { Ground } from './Ground'
 import { Player } from './Player'
@@ -11,44 +11,66 @@ import { useSpring, a } from '@react-spring/three'
 import { Rain } from './Rain'
 import { DirectionSign } from './DirectionSign'
 
-// Animated board that lies flat, then flips up on X-axis; opens only when stepped on
+// Animated board that opens only when player is inside its 5×5 footprint
 const AnimatedBoard = ({
-  index,
   positionX = -5,
   positionY = 0.2,
   positionZ = -2,
-  currentSection,
+  playerPos,
+  label,
   children,
+}: {
+  positionX?: number
+  positionY?: number
+  positionZ?: number
+  playerPos: Vector3
+  label?: string
+  children: React.ReactNode
 }) => {
-  // only animate boards whose index is between 0 and 5
-  const active = currentSection === index && index >= 0 && index <= 5
-  const { rotationZ } = useSpring({
-    rotationZ: active ? Math.PI / 2 : 0,
-    config: { mass: 1, tension: 170, friction: 26 },
+  const inside =
+    Math.abs(playerPos.x - positionX) <= 2.5 &&
+    Math.abs(playerPos.z - positionZ) <= 2.5
+
+  // animate box fill and text opacity
+  const { fill, textOpacity } = useSpring({
+    fill: inside ? 0.5 : 0,
+    textOpacity: inside ? 1 : 0,
+    config: { mass: 1, tension: 120, friction: 60 },
   })
 
   return (
-    <a.group position-x={positionX} position-y={positionY} position-z={positionZ}>
-      {/* only mesh rotates */}
-      <a.mesh scale-y={active ? 2 : 1}>
+    <a.group
+      position-x={positionX}
+      position-y={positionY}
+      position-z={positionZ}
+    >
+      {/* outline */}
+      <mesh>
+        <boxGeometry args={[5, 0, 5]} />
+        <meshStandardMaterial transparent opacity={0} />
+        <Edges scale={[1.01,1.01,1.01]} color="white" />
+      </mesh>
+
+      {/* animated fill */}
+      <a.mesh>
         <boxGeometry args={[5, 2, 5]} />
-        <a.meshStandardMaterial
-          color={active ? 'green' : 'blue'}
-          transparent
-          opacity={0.2}
-        />
+        <a.meshStandardMaterial transparent opacity={fill} />
       </a.mesh>
 
-      {/* text stays fixed in world space */}
-      <Billboard
-        position={[0, 2, 0]}
-        lockX
-        lockY
-        lockZ
-      >
-        <Float >
-          {children}
-        </Float>
+      {/* label or content with fade */}
+      <Billboard lockX lockY lockZ position={[0, 2, 0]}>
+        {inside ? (
+          <a.group opacity={textOpacity}>
+            <Float>{children}</Float>
+          </a.group>
+        ) : label ? (
+          <a.group opacity={textOpacity.to(o => 1)}>
+            <DreiText color="white" fontSize={1} anchorX="center" anchorY="middle"
+              rotation={[0, -Math.PI / 4, 0]}>
+              {label}
+            </DreiText>
+          </a.group>
+        ) : null}
       </Billboard>
     </a.group>
   )
@@ -106,6 +128,7 @@ export const Scene = ({ resume }: { resume: ResumeData }) => {
   const [playerMoving, setPlayerMoving] = useState(false)
   const targetFov = useRef(50)
   const [freeCamera, setFreeCamera] = useState(false)
+  const [playerPos, setPlayerPos] = useState<Vector3>(new Vector3())
 
   useEffect(() => {
     camera.up.set(0, 1, 0)
@@ -123,21 +146,22 @@ export const Scene = ({ resume }: { resume: ResumeData }) => {
 
   useFrame(() => {
     if (!playerRef.current) return;
-    const playerPosition = playerRef.current.translation();
+    const pos = playerRef.current.translation();
+    setPlayerPos(new Vector3(pos.x, pos.y, pos.z));
 
-    console.log(`Player Position → x: ${playerPosition.x.toFixed(2)}, y: ${playerPosition.y.toFixed(2)}, z: ${playerPosition.z.toFixed(2)}`);
+    console.log(`Player Position → x: ${pos.x.toFixed(2)}, y: ${pos.y.toFixed(2)}, z: ${pos.z.toFixed(2)}`);
 
     if (!freeCamera) {
       camera.position.set(
-        playerPosition.x - 10,
-        playerPosition.y + 6,
-        playerPosition.z + 10 
+        pos.x - 10,
+        pos.y + 6,
+        pos.z + 10 
       );
       camera.up.set(0, 1, 0);
-      camera.lookAt(playerPosition.x, playerPosition.y, playerPosition.z);
+      camera.lookAt(pos.x, pos.y, pos.z);
     } else {
       if (orbitRef.current) {
-        orbitRef.current.target.copy(playerPosition)
+        orbitRef.current.target.copy(pos)
       }
     }
 
@@ -149,7 +173,7 @@ export const Scene = ({ resume }: { resume: ResumeData }) => {
 
     // Update current section based on player position
     const sectionLength = 15;  // match board width
-    const newSection = Math.floor(playerPosition.x / sectionLength);
+    const newSection = Math.floor(pos.x / sectionLength);
     if (newSection !== currentSection) {
       setCurrentSection(newSection);
     }
@@ -272,7 +296,7 @@ export const Scene = ({ resume }: { resume: ResumeData }) => {
               <meshBasicMaterial color="red" />
             </Sphere>
             <Billboard position={[axesSize + 1, 0, 0]}>
-              <Text color="red" fontSize={0.5}>X</Text>
+              <DreiText color="red" fontSize={0.5}>X</DreiText>
             </Billboard>
           </group>
 
@@ -286,7 +310,7 @@ export const Scene = ({ resume }: { resume: ResumeData }) => {
               <meshBasicMaterial color="green" />
             </Sphere>
             <Billboard position={[axesSize + 1, 0, 0]}>
-              <Text color="green" fontSize={0.5}>Y</Text>
+              <DreiText color="green" fontSize={0.5}>Y</DreiText>
             </Billboard>
           </group>
 
@@ -300,7 +324,7 @@ export const Scene = ({ resume }: { resume: ResumeData }) => {
               <meshBasicMaterial color="blue" />
             </Sphere>
             <Billboard position={[axesSize + 1, 0, 0]}>
-              <Text color="blue" fontSize={0.5}>Z</Text>
+              <DreiText color="blue" fontSize={0.5}>Z</DreiText>
             </Billboard>
           </group>
         </>
@@ -313,74 +337,33 @@ export const Scene = ({ resume }: { resume: ResumeData }) => {
         return (
           <group key={`exp-${index}`}>
             <AnimatedBoard
-              index={index}
-              currentSection={currentSection}
               positionX={px}
-              positionY={currentSection === index ? 2 : 0}
+              positionY={0.1}
               positionZ={pz}
+              playerPos={playerPos}
+              label={`Work Experience ${index + 1}`}
             >
-              {currentSection === index ? (
-                <>
-                  <Text
-              color="red"
-              fontSize={0.5}
-              anchorX="center"
-              anchorY="middle"
-              rotation={[0, -Math.PI / 6, 0]}
-              position={[0, 2, 0]} // company title, top
-                  >
-              {exp.company}
-                  </Text>
-                  <Text
-              color="yellow"
-              fontSize={0.4}
-              anchorX="center"
-              anchorY="middle"
-              rotation={[0, -Math.PI / 6, 0]}
-              position={[0, 1.5, 0]} // job title, middle
-                  >
-              {exp.title}
-                  </Text>
-                  {/* <Text
-              color="red"
-              fontSize={0.3}
-              maxWidth={10}
-              textAlign="center"
-              anchorX="center"
-              anchorY="middle"
-              rotation={[0, -Math.PI / 6, 0]}
-              position={[0, 1, 0]} // description
-                  >
-              {exp.description}
-                  </Text> */}
-                  {/* <Text
-              color="white"
-              fontSize={0.3}
-              anchorX="center"
-              anchorY="middle"
-              rotation={[0, -Math.PI / 6, 0]}
-              position={[0, 1, 0]} // dates at bottom
-                  >
-              {`${exp.start} - ${exp.end}`}
-                  </Text> */}
-                </>
-              ) : (
-                <Text
-                  color="white"
-                  fontSize={0.5}
-                  textAlign="center"
-                  anchorX="center"
-                  anchorY="middle"
-                  rotation={[0, -Math.PI / 6, 0]}
-                >
-                  Work Experience {index + 1}
-                </Text>
-              )}
+              <DreiText
+                color="red"
+                fontSize={1}
+                rotation={[0, -Math.PI / 4, 0]}
+                position={[0, 2, 0]} 
+              >
+                {exp.company}
+              </DreiText>
+              <DreiText
+                color="yellow"
+                fontSize={0.8}
+                rotation={[0, -Math.PI / 4, 0]}
+                position={[0, 1, 0]} 
+              >
+                {exp.title}
+              </DreiText>
             </AnimatedBoard>
             <DirectionSign
               position={[px + 3, 1, pz]}
               rotation={[0, -Math.PI / 2, 0]}
-              text={`${formatDate(exp.start)} - ${formatDate(exp.end)}`}
+              text={`${formatDate(exp.start)} - ${formatDate(exp.end!)}`}
             />
           </group>
         )
@@ -394,57 +377,32 @@ export const Scene = ({ resume }: { resume: ResumeData }) => {
         return (
           <group key={`edu-${index}`}>
             <AnimatedBoard
-              index={eduIndex}
-              currentSection={currentSection}
               positionX={px}
               positionY={0.2}
               positionZ={pz}
+              playerPos={playerPos}
+              label={`Education ${index + 1}`}
             >
-              {currentSection === eduIndex ? (
-                <>
-                <Text 
-                  color="red" 
-                  fontSize={0.5}
-                  anchorX="center" 
-                  anchorY="middle"
-                  rotation={[0, -Math.PI / 6, 0]}
-                  position={[0, 3, 0]} 
-                >
-                  {edu.school}
-                </Text>
-                <Text
-                  color="yellow"
-                  fontSize={0.4}
-                  anchorX="center"
-                  anchorY="middle"
-                  rotation={[0, -Math.PI / 6, 0]}
-                  position={[0, 2, 0]} 
-                >
-                  {edu.degree}
-                </Text>
-                {/* <Text
-                  color="yellow"
-                  fontSize={0.3}
-                  anchorX="center"
-                  anchorY="middle"
-                  rotation={[0, -Math.PI / 6, 0]}
-                  position={[0, 1, 0]}
-                >
-                  {`${edu.start} - ${edu.end}`}
-                </Text> */}
-                </>
-              ) : (
-                <Text
-                color="white"
+              <DreiText 
+                color="red" 
                 fontSize={0.5}
-                textAlign="center"
+                anchorX="center" 
+                anchorY="middle"
+                rotation={[0, -Math.PI / 4, 0]}
+                position={[0, 2, 0]} 
+              >
+                {edu.school}
+              </DreiText>
+              <DreiText
+                color="yellow"
+                fontSize={0.4}
                 anchorX="center"
                 anchorY="middle"
-                rotation={[0, -Math.PI / 6, 0]}
-                >
-                Education {index + 1}
-                </Text>
-              )}
+                rotation={[0, -Math.PI / 4, 0]}
+                position={[0, 1, 0]} 
+              >
+                {edu.degree}
+              </DreiText>
             </AnimatedBoard>
             <DirectionSign
               position={[px + 3, 1, pz]}

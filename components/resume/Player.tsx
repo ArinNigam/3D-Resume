@@ -66,6 +66,8 @@ export const Player = forwardRef<RigidBody, PlayerProps>((props, ref) => {
     })
   }))
 
+  const prevPos = useRef({ x: NaN, y: NaN, z: NaN })
+
   // Log available animation names once
   React.useEffect(() => {
     if (names && names.length > 0) {
@@ -156,13 +158,22 @@ export const Player = forwardRef<RigidBody, PlayerProps>((props, ref) => {
       bodyRef.current.setRotation(rotation, true)
     }
 
-    // Update position display
+    // Update position display only if it changes
     const position = bodyRef.current.translation()
-    setControls({
-      x: Number(position.x.toFixed(2)),
-      y: Number(position.y.toFixed(2)),
-      z: Number(position.z.toFixed(2))
-    })
+    const x = Number(position.x.toFixed(2))
+    const y = Number(position.y.toFixed(2))
+    const z = Number(position.z.toFixed(2))
+
+    if (x !== prevPos.current.x ||
+        y !== prevPos.current.y ||
+        z !== prevPos.current.z) {
+      prevPos.current = { x, y, z }
+      setControls({
+        x,
+        y,
+        z
+      })
+    }
 
     // Player faces direction of movement
     if (keys.right) {
@@ -197,7 +208,7 @@ export const Player = forwardRef<RigidBody, PlayerProps>((props, ref) => {
       colliders="cuboid"
       mass={1}
       type="dynamic"
-      position={[0, -0.4, 0]}   // spawn just above floor
+      position={[-8, -0.4, -1]}   // spawn just above floor
       enabledRotations={[false, false, false]}
       lockRotations
       linearDamping={0.5}
