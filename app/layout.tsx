@@ -28,8 +28,8 @@ export default function RootLayout({
     <ClerkProvider>
       <PlausibleProvider domain="self.so">
         <ReactQueryClientProvider>
-          <html lang="en">
-            <body className={`${mono.className} min-h-screen flex flex-col`}>
+          <html lang="en" className="bg-gradient-to-br from-[#2d1a4a] via-[#ff6e48] via-40% to-[#3a8dde] to-90%">
+            <body className={`${mono.className} min-h-screen flex flex-col animated-gradient`}>
               <main className="flex-1 flex flex-col">{children}</main>
               <Toaster richColors position="bottom-center" />
             </body>
