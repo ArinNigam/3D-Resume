@@ -26,10 +26,14 @@ export default async function Home() {
                 >
                   <span className="text-white">Resume</span>
                   <span className="text-[#ffb86b]">→</span>
-                  <span className="text-white">GTA VI</span>
+                    <img
+                    src="/logo.png"
+                    alt="GTA VI Logo"
+                    className="h-24 w-auto"
+                    />
                   <br />
                   <span className="text-white">
-                    in <span className="hidden sm:inline text-white font-bold">one click</span>
+                    <span className="hidden sm:inline text-white font-bold">in one click</span>
                   </span>
                 </h1>
                 <p className="text-base mb-8 font-mono text-center md:text-left text-[#fffbe9] drop-shadow-[0_0_8px_#ffb86b] leading-relaxed">
@@ -46,7 +50,7 @@ export default async function Home() {
                       <span className="relative">Upload Resume</span>
                     </Button>
                   </Link>
-                  <p className="text-sm text-[#fffbe9] mt-4 text-center drop-shadow-[0_0_8px_#ffb86b]">
+                  <p className="text-sm text-[#fffbe9] my-4 text-center drop-shadow-[0_0_8px_#ffb86b] ">
                     Takes 1 minute!
                   </p>
                 </div>

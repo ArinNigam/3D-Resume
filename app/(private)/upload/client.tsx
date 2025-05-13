@@ -65,7 +65,7 @@ export default function UploadPageClient() {
   return (
     <div className="flex flex-col items-center flex-1 px-4 py-12 gap-6">
       <div className="w-full max-w-[438px] text-center font-mono">
-        <h1 className="text-base text-center pb-6">
+        <h1 className="mb-8 md:text text-center pb-6 text-white" style={{ fontFamily: '"Orbitron", "Montserrat", monospace' }}>
           Upload a PDF of your LinkedIn or your resume and generate your
           personal site
         </h1>
@@ -137,27 +137,27 @@ export default function UploadPageClient() {
       </div>
       <div className="font-mono">
         <div className="relative">
-          <Button
-            className="px-4 py-3 h-auto bg-design-black hover:bg-design-black/95"
+            <Button
+            className="relative group flex items-center bg-[#ff6eec] hover:bg-[#ffb86b] text-[#2d1a4a] px-6 py-3 h-auto text-base border-2 border-[#ffb86b] rounded-lg transition-all duration-200 shadow-[0_0_20px_4px_#ff6eec] hover:shadow-[0_0_24px_8px_#ffb86b] font-extrabold tracking-widest"
             disabled={fileState.status === 'empty' || isUpdating}
             onClick={() => router.push('/pdf')}
-          >
+            >
             {isUpdating ? (
               <>
-                <CustomSpinner className="h-5 w-5 mr-2" />
-                Processing...
+              <CustomSpinner className="h-5 w-5 mr-2" />
+              <span className="relative">Processing...</span>
               </>
             ) : (
               <>
-                <img
-                  src="/sparkle.png"
-                  alt="Sparkle Icon"
-                  className="h-5 w-5 mr-2"
-                />
-                Generate Website
+              <img
+                src="/sparkle.png"
+                alt="Sparkle Icon"
+                className="h-5 w-5 mr-2 relative drop-shadow-[0_0_8px_#ffb86b]"
+              />
+              <span className="relative">Generate Website</span>
               </>
             )}
-          </Button>
+            </Button>
           {fileState.status === 'empty' && (
             <TooltipProvider>
               <Tooltip>

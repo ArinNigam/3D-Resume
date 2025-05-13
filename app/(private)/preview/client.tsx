@@ -24,6 +24,7 @@ import {
 } from '@/components/ui/alert-dialog';
 
 import { toast } from 'sonner';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 export default function PreviewClient({ messageTip }: { messageTip?: string }) {
   const { user } = useUser();
@@ -38,6 +39,11 @@ export default function PreviewClient({ messageTip }: { messageTip?: string }) {
   const [isEditMode, setIsEditMode] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [showDiscardConfirmation, setShowDiscardConfirmation] = useState(false);
+
+  const isMobile = useIsMobile();
+  const [mobileLeftPressed, setMobileLeftPressed] = useState(false);
+  const [mobileRightPressed, setMobileRightPressed] = useState(false);
+  const [mobileJumpPressed, setMobileJumpPressed] = useState(false);
 
   useEffect(() => {
     if (resumeQuery.data?.resume?.resumeData) {
@@ -68,12 +74,10 @@ export default function PreviewClient({ messageTip }: { messageTip?: string }) {
   };
 
   const handleDiscardChanges = () => {
-    // Show confirmation dialog instead of immediately discarding
     setShowDiscardConfirmation(true);
   };
 
   const confirmDiscardChanges = () => {
-    // Reset to original data
     if (resumeQuery.data?.resume?.resumeData) {
       setLocalResumeData(resumeQuery.data?.resume?.resumeData);
     }
@@ -247,6 +251,9 @@ export default function PreviewClient({ messageTip }: { messageTip?: string }) {
           <FullResume
             resume={localResumeData}
             profilePicture={user?.imageUrl}
+            mobileLeftPressed={mobileLeftPressed}
+            mobileRightPressed={mobileRightPressed}
+            mobileJumpPressed={mobileJumpPressed}
           />
         )}
       </div>
@@ -279,6 +286,132 @@ export default function PreviewClient({ messageTip }: { messageTip?: string }) {
           setModalSiteLive(false);
         }}
       />
+
+      {isMobile && !isEditMode && (
+        <>
+          <button
+            style={{
+              position: 'fixed',
+              bottom: '30px',
+              left: '30px',
+              zIndex: 1000,
+              padding: '10px',
+              borderRadius: '50%',
+              background: 'rgba(255, 255, 255, 0.7)',
+              border: '2px solid white',
+              color: 'black',
+              fontSize: '24px',
+              width: '60px',
+              height: '60px',
+              cursor: 'pointer',
+              touchAction: 'none',
+              userSelect: 'none',
+            }}
+            onPointerDown={(e) => {
+              e.stopPropagation();
+              setMobileLeftPressed(true);
+            }}
+            onPointerUp={(e) => {
+              e.stopPropagation();
+              setMobileLeftPressed(false);
+            }}
+            onTouchStart={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setMobileLeftPressed(true);
+            }}
+            onTouchEnd={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setMobileLeftPressed(false);
+            }}
+            onContextMenu={(e) => e.preventDefault()}
+          >
+            &lt;
+          </button>
+          <button
+            style={{
+              position: 'fixed',
+              bottom: '30px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              zIndex: 1000,
+              padding: '10px',
+              borderRadius: '10px',
+              background: 'rgba(255, 255, 255, 0.7)',
+              border: '2px solid white',
+              color: 'black',
+              fontSize: '18px',
+              width: '100px',
+              height: '50px',
+              cursor: 'pointer',
+              touchAction: 'none',
+              userSelect: 'none',
+            }}
+            onPointerDown={(e) => {
+              e.stopPropagation();
+              setMobileJumpPressed(true);
+            }}
+            onPointerUp={(e) => {
+              e.stopPropagation();
+              setMobileJumpPressed(false);
+            }}
+            onTouchStart={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setMobileJumpPressed(true);
+            }}
+            onTouchEnd={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setMobileJumpPressed(false);
+            }}
+            onContextMenu={(e) => e.preventDefault()}
+          >
+            Jump
+          </button>
+          <button
+            style={{
+              position: 'fixed',
+              bottom: '30px',
+              right: '30px',
+              zIndex: 1000,
+              padding: '10px',
+              borderRadius: '50%',
+              background: 'rgba(255, 255, 255, 0.7)',
+              border: '2px solid white',
+              color: 'black',
+              fontSize: '24px',
+              width: '60px',
+              height: '60px',
+              cursor: 'pointer',
+              touchAction: 'none',
+              userSelect: 'none',
+            }}
+            onPointerDown={(e) => {
+              e.stopPropagation();
+              setMobileRightPressed(true);
+            }}
+            onPointerUp={(e) => {
+              e.stopPropagation();
+              setMobileRightPressed(false);
+            }}
+            onTouchStart={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setMobileRightPressed(true);
+            }}
+            onTouchEnd={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setMobileRightPressed(false);
+            }}
+            onContextMenu={(e) => e.preventDefault()}
+          >
+            &gt;
+          </button>
+        </>
+      )}
     </div>
   );
 }

@@ -9,10 +9,19 @@ import React from 'react'
 
 type PlayerProps = {
   onMoveChange?: (moving: boolean) => void;
+  mobileLeftPressed?: boolean;
+  mobileRightPressed?: boolean;
+  mobileJumpPressed?: boolean; // Added prop
 } & React.ComponentPropsWithoutRef<'group'>;
 
 export const Player = forwardRef<RigidBody, PlayerProps>((props, ref) => {
-  const { onMoveChange, ...restProps } = props;
+  const { 
+    onMoveChange, 
+    mobileLeftPressed = false,
+    mobileRightPressed = false,
+    mobileJumpPressed = false, // Added default value
+    ...restProps 
+  } = props;
   const bodyRef = useRef<RigidBody>(null)
   const keys = useKeyboardControls()
   const gltf = useGLTF('/models/player.glb')
@@ -81,9 +90,28 @@ export const Player = forwardRef<RigidBody, PlayerProps>((props, ref) => {
   const prevMovingRef = useRef(false)
   // Track the currently playing animation
   const currentAnimRef = useRef<string | null>(null)
+  const walkAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Initialize and manage walk audio
+  React.useEffect(() => {
+    const audio = new Audio('/music/walk.mp3');
+    audio.loop = true;
+    walkAudioRef.current = audio;
+
+    return () => {
+      // Cleanup audio when component unmounts
+      if (walkAudioRef.current) {
+        walkAudioRef.current.pause();
+        walkAudioRef.current = null;
+      }
+    };
+  }, []);
 
   useFrame((state) => {
     if (!bodyRef.current) return
+
+    // For debugging:
+    // console.log("Keys state in Player:", keys.forward, keys.backward);
 
     // Read velocity BEFORE setting new velocity
     const currentVelocity = bodyRef.current.linvel()
@@ -98,11 +126,20 @@ export const Player = forwardRef<RigidBody, PlayerProps>((props, ref) => {
           actions[walkAnim].reset().fadeIn(0.1).play()
           currentAnimRef.current = walkAnim
         }
+        // Play walk sound
+        if (walkAudioRef.current && walkAudioRef.current.paused) {
+          walkAudioRef.current.play().catch(error => console.error("Error playing walk sound:", error));
+        }
       } else if (actions[walkAnim]) {
         if (currentAnimRef.current === walkAnim) {
           actions[walkAnim].fadeOut(0.3)
           setTimeout(() => { if (actions[walkAnim]) actions[walkAnim].stop() }, 300)
           currentAnimRef.current = null
+        }
+        // Pause walk sound
+        if (walkAudioRef.current && !walkAudioRef.current.paused) {
+          walkAudioRef.current.pause();
+          walkAudioRef.current.currentTime = 0; // Reset for next play
         }
       }
       prevMovingRef.current = moving
@@ -114,49 +151,41 @@ export const Player = forwardRef<RigidBody, PlayerProps>((props, ref) => {
     }
 
     const velocity = bodyRef.current.linvel()
-    const newVelocity = new Vector3(0, velocity.y, 0)
+    const newVelocity = new Vector3(0, velocity.y, 0) // Keep current Y velocity for jumps/gravity
 
-    // Handle movement based on world axes
-    if (keys.right) {
-      newVelocity.x = movementSpeed
+    // Calculate intended movement deltas based on keyboard and mobile inputs
+    let deltaX = 0;
+    if (keys.right || mobileRightPressed) { // Player moves right with keyboard OR mobile input
+      deltaX += 1;
     }
-    if (keys.left) {
-      newVelocity.x = -movementSpeed
-    }
-    if (keys.backward) {
-      newVelocity.z = movementSpeed
-    }
-    if (keys.forward) {
-      newVelocity.z = -movementSpeed
+    if (keys.left || mobileLeftPressed) { // Player moves left with keyboard OR mobile input
+      deltaX -= 1;
     }
 
-    // Apply damping when no movement keys are pressed
-    if (!keys.forward && !keys.backward && !keys.left && !keys.right) {
-      const dampingFactor = 1 - damping * (state.clock.getDelta())
-      newVelocity.x = velocity.x * dampingFactor
-      newVelocity.z = velocity.z * dampingFactor
+    let deltaZ = 0;
+    if (keys.backward) { // Assuming no mobile forward/backward for now
+      deltaZ += 1;
+    }
+    if (keys.forward) { // Assuming no mobile forward/backward for now
+      deltaZ -= 1;
+    }
+
+    newVelocity.x = deltaX * movementSpeed;
+    newVelocity.z = deltaZ * movementSpeed;
+
+    // Apply damping if there's no directional input
+    if (deltaX === 0 && deltaZ === 0) {
+      const dampingFactor = 1 - damping * (state.clock.getDelta());
+      newVelocity.x = velocity.x * dampingFactor;
+      newVelocity.z = velocity.z * dampingFactor;
     }
 
     // Handle jumping
-    if (keys.jump && Math.abs(velocity.y) < 0.1) {
+    if ((keys.jump || mobileJumpPressed) && Math.abs(velocity.y) < 0.1) { // Check mobileJumpPressed
       newVelocity.y = jumpForce
     }
 
     bodyRef.current.setLinvel(newVelocity, true)
-
-    // Handle forward and backward impulses
-    if (keys.forward) {
-      bodyRef.current.applyImpulse({ x: 0, y: 0, z: -0.2 }, true)
-      const rotation = new Quaternion()
-      rotation.setFromAxisAngle(new Vector3(0, 1, 0), 0)
-      bodyRef.current.setRotation(rotation, true)
-    }
-    if (keys.backward) {
-      bodyRef.current.applyImpulse({ x: 0, y: 0, z: 0.2 }, true)
-      const rotation = new Quaternion()
-      rotation.setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)
-      bodyRef.current.setRotation(rotation, true)
-    }
 
     // Update position display only if it changes
     const position = bodyRef.current.translation()
@@ -176,29 +205,15 @@ export const Player = forwardRef<RigidBody, PlayerProps>((props, ref) => {
     }
 
     // Player faces direction of movement
-    if (keys.right) {
-      // Face positive X axis: +90deg
-      const rotation = new Quaternion()
-      rotation.setFromAxisAngle(new Vector3(0, 1, 0), Math.PI / 2)
-      bodyRef.current.setRotation(rotation, true)
-    } else if (keys.left) {
-      // Face negative X axis: -90deg
-      const rotation = new Quaternion()
-      rotation.setFromAxisAngle(new Vector3(0, 1, 0), -Math.PI / 2)
-      bodyRef.current.setRotation(rotation, true)
-    } else if (keys.forward) {
-      // Face negative Z axis: 0deg
-      const rotation = new Quaternion()
-      rotation.setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)
-      bodyRef.current.setRotation(rotation, true)
-    } else if (keys.backward) {
-      // Face positive Z axis: 180deg
-      const rotation = new Quaternion()
-      rotation.setFromAxisAngle(new Vector3(0, 1, 0), 0)
-      bodyRef.current.setRotation(rotation, true)
+    // Calculate movement direction vector (only X and Z components)
+    const movementDir = new Vector3(deltaX, 0, deltaZ);
+    if (movementDir.lengthSq() > 0.001) { // If there is significant movement input
+        movementDir.normalize();
+        const angle = Math.atan2(movementDir.x, movementDir.z); // Calculate angle based on X and Z
+        const rotation = new Quaternion();
+        rotation.setFromAxisAngle(new Vector3(0, 1, 0), angle);
+        bodyRef.current.setRotation(rotation, true);
     }
-
-    
   })
 
   return (

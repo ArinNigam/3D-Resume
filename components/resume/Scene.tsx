@@ -1,4 +1,4 @@
-import { OrbitControls, Float, Billboard, Grid, Sphere, Environment, Edges, Text as DreiText } from '@react-three/drei'
+import { OrbitControls, Grid, Sphere, Environment, Edges, Text as DreiText, Billboard, Html, KeyboardControls } from '@react-three/drei'
 import { Physics } from '@react-three/rapier'
 import { Ground } from './Ground'
 import { Player } from './Player'
@@ -11,7 +11,6 @@ import { useSpring, a } from '@react-spring/three'
 import { Rain } from './Rain'
 import { DirectionSign } from './DirectionSign'
 
-// Animated board that opens only when player is inside its 5×5 footprint
 const AnimatedBoard = ({
   positionX = -5,
   positionY = 0.2,
@@ -31,7 +30,6 @@ const AnimatedBoard = ({
     Math.abs(playerPos.x - positionX) <= 2.5 &&
     Math.abs(playerPos.z - positionZ) <= 2.5
 
-  // animate box fill and text opacity
   const { fill, textOpacity } = useSpring({
     fill: inside ? 0.5 : 0,
     textOpacity: inside ? 1 : 0,
@@ -44,46 +42,49 @@ const AnimatedBoard = ({
       position-y={positionY}
       position-z={positionZ}
     >
-      {/* outline */}
       <mesh>
         <boxGeometry args={[5, 0, 5]} />
         <meshStandardMaterial transparent opacity={0} />
         <Edges scale={[1.01,1.01,1.01]} color="white" />
       </mesh>
 
-      {/* animated fill */}
       <a.mesh>
         <boxGeometry args={[5, 2, 5]} />
         <a.meshStandardMaterial transparent opacity={fill} />
       </a.mesh>
 
-      {/* label or content with fade */}
-      <Billboard lockX lockY lockZ position={[0, 2, 0]}>
-        {inside ? (
-          <a.group opacity={textOpacity}>
-            <Float>{children}</Float>
-          </a.group>
-        ) : label ? (
-          <a.group opacity={textOpacity.to(o => 1)}>
-            <DreiText color="white" fontSize={1} anchorX="center" anchorY="middle"
-              rotation={[0, -Math.PI / 4, 0]}>
-              {label}
-            </DreiText>
-          </a.group>
-        ) : null}
-      </Billboard>
+      {inside ? (
+        <a.group opacity={textOpacity} position={[0, 2, 0]}>
+          {children}
+        </a.group>
+      ) : label ? (
+        <a.group opacity={textOpacity.to(o => 1)} position={[0, 2, 0]}>
+          <DreiText color="white" fontSize={1} 
+            rotation={[0, -Math.PI / 4, 0]}>
+            {label}
+          </DreiText>
+        </a.group>
+      ) : null}
     </a.group>
   )
 }
 
-// add date formatter
 function formatDate(input: string) {
   const d = new Date(input)
   return d.toLocaleString('default', { month: 'long', year: 'numeric' })
 }
 
-export const Scene = ({ resume }: { resume: ResumeData }) => {
-  const audioRef = useRef<HTMLAudioElement>()
+export const Scene = ({ 
+  resume,
+  mobileLeftPressed,
+  mobileRightPressed,
+  mobileJumpPressed, // Added prop
+}: { 
+  resume: ResumeData,
+  mobileLeftPressed: boolean,
+  mobileRightPressed: boolean,
+  mobileJumpPressed: boolean, // Added prop type
+}) => {
   const { gravity } = useControls('Physics', {
     gravity: {
       value: -9.81,
@@ -165,37 +166,25 @@ export const Scene = ({ resume }: { resume: ResumeData }) => {
       }
     }
 
-    // Smoothly interpolate camera FOV toward targetFov
     const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
     const perspCam = camera as PerspectiveCamera;
     perspCam.fov = lerp(perspCam.fov, targetFov.current, 0.08);
     perspCam.updateProjectionMatrix();
 
-    // Update current section based on player position
-    const sectionLength = 15;  // match board width
+    const sectionLength = 15;
     const newSection = Math.floor(pos.x / sectionLength);
     if (newSection !== currentSection) {
       setCurrentSection(newSection);
     }
   });
 
-  // Set a brownish blurry background
   const { scene } = useThree()
   useEffect(() => {
-    scene.background = new Color('#f8c291') // deep brown
+    scene.background = new Color('#f8c291')
   }, [scene])
 
-  // center workExperience row around x=12
   const expCount = resume.workExperience.length
   const centerIndex = (expCount - 1) / 2
-
-  // sort chronologically by start date
-  const sortedWork = [...resume.workExperience].sort((a, b) =>
-    new Date(a.start).getTime() - new Date(b.start).getTime()
-  )
-  const sortedEdu = [...resume.education].sort((a, b) =>
-    new Date(a.start).getTime() - new Date(b.start).getTime()
-  )
 
   return (
     <>
@@ -204,37 +193,18 @@ export const Scene = ({ resume }: { resume: ResumeData }) => {
       <OrbitControls
         ref={orbitRef}
         enabled={freeCamera}
-        maxPolarAngle={Math.PI/2 - Math.PI / 12  } // Prevent camera from going above ground
-        minDistance={5} // Minimum zoom distance
-        maxDistance={20} // Maximum zoom distance
+        maxPolarAngle={Math.PI/2 - Math.PI / 12  }
+        minDistance={5}
+        maxDistance={20}
       />
 
-      {/* Warm ambient light*/}
-      {/*<ambientLight intensity={0} color="#b08c4a" />*/}
-      {/*/!* Soft hemisphere light for diffuse effect *!/*/}
-      {/*<hemisphereLight*/}
-      {/*  skyColor="#b08c4a"*/}
-      {/*  groundColor="#3a2a1e"*/}
-      {/*  intensity={3}*/}
-      {/*/>*/}
-      {/*/!* Optional: softer directional light *!/*/}
-      {/*<directionalLight*/}
-      {/*  castShadow*/}
-      {/*  position={[10, 10, 5]}*/}
-      {/*  intensity={1}*/}
-      {/*  color="#b08c4a"*/}
-      {/*  shadow-mapSize={[1024, 1024]}*/}
-      {/*/>*/}
-      {/*/!* Blurry dome sky *!/*/}
       <mesh scale={[100, 100, 100]} position={[0, 0, 0]}>
         <sphereGeometry args={[1, 32, 32]} />
         <meshStandardMaterial color="#00008B" roughness={10} metalness={0} side={BackSide} />
       </mesh>
 
-      {/* Coordinate System Helpers */}
       {showGrid && (
         <>
-          {/* XZ Grid */}
           <Grid
             args={[axesSize * 2, axesSize * 2]}
             position={[0, 0, 0]}
@@ -249,7 +219,6 @@ export const Scene = ({ resume }: { resume: ResumeData }) => {
             followCamera={false}
             infiniteGrid
           />
-          {/* XY Grid */}
           <Grid
             args={[axesSize * 2, axesSize * 2]}
             position={[0, 0, 0]}
@@ -265,7 +234,6 @@ export const Scene = ({ resume }: { resume: ResumeData }) => {
             followCamera={false}
             infiniteGrid
           />
-          {/* YZ Grid */}
           <Grid
             args={[axesSize * 2, axesSize * 2]}
             position={[0, 0, 0]}
@@ -286,7 +254,6 @@ export const Scene = ({ resume }: { resume: ResumeData }) => {
 
       {showAxes && (
         <>
-          {/* X Axis (Red) */}
           <group position={[0, 0, 0]}>
             <mesh position={[axesSize / 2, 0, 0]}>
               <cylinderGeometry args={[0.05, 0.05, axesSize]} />
@@ -300,7 +267,6 @@ export const Scene = ({ resume }: { resume: ResumeData }) => {
             </Billboard>
           </group>
 
-          {/* Y Axis (Green) */}
           <group position={[0, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
             <mesh position={[axesSize / 2, 0, 0]}>
               <cylinderGeometry args={[0.05, 0.05, axesSize]} />
@@ -314,7 +280,6 @@ export const Scene = ({ resume }: { resume: ResumeData }) => {
             </Billboard>
           </group>
 
-          {/* Z Axis (Blue) */}
           <group position={[0, 0, 0]} rotation={[0, -Math.PI / 2, 0]}>
             <mesh position={[axesSize / 2, 0, 0]}>
               <cylinderGeometry args={[0.05, 0.05, axesSize]} />
@@ -330,8 +295,7 @@ export const Scene = ({ resume }: { resume: ResumeData }) => {
         </>
       )}
 
-      {/* Resume Experience Boards */}
-      {sortedWork.map((exp, index) => {
+      {resume.workExperience.map((exp, index) => {
         const px = index * 15
         const pz = -1
         return (
@@ -369,9 +333,8 @@ export const Scene = ({ resume }: { resume: ResumeData }) => {
         )
       })}
 
-      {/* Education Boards */}
-      {sortedEdu.map((edu, index) => {
-        const eduIndex = sortedWork.length + index
+      {resume.education.map((edu, index) => {
+        const eduIndex = resume.workExperience.length + index
         const px = eduIndex * 15
         const pz = -1
         return (
@@ -385,9 +348,7 @@ export const Scene = ({ resume }: { resume: ResumeData }) => {
             >
               <DreiText 
                 color="red" 
-                fontSize={0.5}
-                anchorX="center" 
-                anchorY="middle"
+                fontSize={1}
                 rotation={[0, -Math.PI / 4, 0]}
                 position={[0, 2, 0]} 
               >
@@ -395,9 +356,7 @@ export const Scene = ({ resume }: { resume: ResumeData }) => {
               </DreiText>
               <DreiText
                 color="yellow"
-                fontSize={0.4}
-                anchorX="center"
-                anchorY="middle"
+                fontSize={0.8}
                 rotation={[0, -Math.PI / 4, 0]}
                 position={[0, 1, 0]} 
               >
@@ -415,7 +374,13 @@ export const Scene = ({ resume }: { resume: ResumeData }) => {
 
       <Physics gravity={[0, gravity, 0]}>
         <Ground />
-        <Player ref={playerRef} onMoveChange={setPlayerMoving} />
+        <Player 
+          ref={playerRef} 
+          onMoveChange={setPlayerMoving} 
+          mobileLeftPressed={mobileLeftPressed}
+          mobileRightPressed={mobileRightPressed}
+          mobileJumpPressed={mobileJumpPressed} // Pass prop
+        />
       </Physics>
     </>
   )
