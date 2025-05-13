@@ -185,7 +185,7 @@ return (
             </div>
           )}
   </div>
-  <div className="mx-auto w-full md:rounded-lg border-[0.5px] border-neutral-300 flex items-center justify-between px-4">
+  <div className="mx-auto w-full md:rounded-lg border-[0.5px] border-neutral-300 flex items-center justify-between">
         {isEditMode ? (
           <EditResume
             resume={localResumeData}
