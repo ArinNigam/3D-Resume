@@ -4,10 +4,6 @@ import { TopMenu } from '../components/TopMenu';
 import { Footer } from '../components/Footer';
 import { BorderBeam } from '@/components/ui/BorderBeam';
 import { BlurFade } from '@/components/ui/BlurFade';
-
-import { PrismaClient } from '@prisma/client';
-import { Key } from 'react';
-
 export default async function Home() {
  
   return (
@@ -87,8 +83,6 @@ export default async function Home() {
           </div>
         </div>
       </section>
-
-      <Footer />
     </>
   );
 }
