@@ -12,6 +12,8 @@
     "@ai-sdk/togetherai": "^0.2.0",
     "@clerk/nextjs": "^6.18.2",
     "@hookform/resolvers": "^3.9.1",
+    "@langchain/core": "^0.3.55",
+    "@langchain/google-genai": "^0.2.8",
     "@prisma/client": "6.6.0",
     "@radix-ui/react-accordion": "^1.2.2",
     "@radix-ui/react-alert-dialog": "^1.1.4",

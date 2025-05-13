@@ -218,6 +218,7 @@ export const Player = forwardRef<RigidBody, PlayerProps>((props, ref) => {
         object={playerScene}
         scale={[0.012, 0.012, 0.012]}
         castShadow
+        dispose={null}
       />
     </RigidBody>
   )

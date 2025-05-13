@@ -27,7 +27,7 @@ export function Ground() {
   return (
     <RigidBody type="fixed" restitution={0.2} friction={1}>
       <group scale={[0.01, 0.01, 0.01]} position={[300, 0, 70]}>
-        <primitive object={groundScene} />
+        <primitive object={groundScene} dispose={null} />
       </group>
 
       <CuboidCollider args={[150, 2, 400]} position={[0, -2, 0]} />

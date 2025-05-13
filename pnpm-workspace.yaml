@@ -1,9 +1,0 @@
-onlyBuiltDependencies:
-  - '@clerk/shared'
-  - '@prisma/client'
-  - '@prisma/engines'
-  - aws-sdk
-  - esbuild
-  - fsevents
-  - prisma
-  - sharp

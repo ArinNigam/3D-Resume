@@ -17,6 +17,12 @@ interface EducationFieldProps {
   onDelete: (index: number) => void;
 }
 
+// Helper to check if a date string is valid and return a string in 'YYYY-MM-DD' format
+function getValidDate(date: string | null | undefined): string {
+  const d = date ? new Date(date) : new Date();
+  return isNaN(d.getTime()) ? new Date().toISOString().slice(0, 10) : d.toISOString().slice(0, 10);
+}
+
 export const EducationField: React.FC<EducationFieldProps> = ({
   edu,
   index,
@@ -90,8 +96,8 @@ export const EducationField: React.FC<EducationFieldProps> = ({
         <div className="md:col-span-2">
           <Label className="text-sm font-medium">Date Range</Label>
           <DateRangePicker
-            startDate={edu.start}
-            endDate={edu.end}
+            startDate={getValidDate(edu.start)}
+            endDate={getValidDate(edu.end)}
             onStartDateChange={(date) => {
               onUpdate(index, {
                 ...edu,

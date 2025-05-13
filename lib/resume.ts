@@ -41,8 +41,7 @@ const WorkExperienceSection = z.array(
     end: z
       .string()
       .optional()
-      .nullable()
-      .describe("End date in format 'YYYY-MM-DD'"),
+      .describe("End date in format 'YYYY-MM-DD'."),
     description: z.string().describe('Job description'),
   })
 );
@@ -52,7 +51,7 @@ const EducationSection = z.array(
     school: z.string().describe('School or university name'),
     degree: z.string().describe('Degree or certification obtained'),
     start: z.string().describe('Start year'),
-    end: z.string().describe('End year'),
+    end: z.string().describe('End year.').optional(),
   })
 );
 

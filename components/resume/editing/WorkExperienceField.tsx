@@ -21,6 +21,12 @@ interface WorkExperienceFieldProps {
   onDelete: (index: number) => void;
 }
 
+// Helper to check if a date string is valid and return a string in 'YYYY-MM-DD' format
+function getValidDate(date: string | null | undefined): string {
+  const d = date ? new Date(date) : new Date();
+  return isNaN(d.getTime()) ? new Date().toISOString().slice(0, 10) : d.toISOString().slice(0, 10);
+}
+
 export const WorkExperienceField: React.FC<WorkExperienceFieldProps> = ({
   work,
   index,
@@ -115,8 +121,8 @@ export const WorkExperienceField: React.FC<WorkExperienceFieldProps> = ({
         <div className="md:col-span-2">
           <Label className="text-sm font-medium">Date Range</Label>
           <DateRangePicker
-            startDate={work.start}
-            endDate={work.end}
+            startDate={getValidDate(work.start)}
+            endDate={getValidDate(work.end)}
             onStartDateChange={(date) => {
               onUpdate(index, {
                 ...work,
