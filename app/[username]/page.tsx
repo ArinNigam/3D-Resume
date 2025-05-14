@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Eye, Edit, Save, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { useIsMobile } from '../../hooks/use-mobile';
 
 import { toast } from 'sonner';
 
@@ -30,6 +31,11 @@ export default function ProfilePage({
   const [isEditMode, setIsEditMode] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [showDiscardConfirmation, setShowDiscardConfirmation] = useState(false);
+
+  const isMobile = useIsMobile();
+  const [mobileLeftPressed, setMobileLeftPressed] = useState(false);
+  const [mobileRightPressed, setMobileRightPressed] = useState(false);
+  const [mobileJumpPressed, setMobileJumpPressed] = useState(false);
 
   useEffect(() => {
     if (resumeQuery.data?.resume?.resumeData) {
@@ -138,54 +144,54 @@ export default function ProfilePage({
       </a>
     </div>
   );
-return (
-  <div className="w-full h-screen bg-background flex flex-col">
-  <div className="max-w-3xl mx-auto w-full flex flex-col md:flex-row justify-between items-center px-4 md:px-0 gap-4">
-          <ToggleGroup
-            type="single"
-            value={isEditMode ? 'edit' : 'preview'}
-            onValueChange={(value) => setIsEditMode(value === 'edit')}
-            aria-label="View mode"
-          >
-            <ToggleGroupItem value="preview" aria-label="Preview mode">
-              <Eye className="h-4 w-4 mr-1" />
-              <span>Preview</span>
-            </ToggleGroupItem>
-            <ToggleGroupItem value="edit" aria-label="Edit mode">
-              <Edit className="h-4 w-4 mr-1" />
-              <span>Edit</span>
-            </ToggleGroupItem>
-          </ToggleGroup>
-  
-          {isEditMode && (
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                onClick={handleDiscardChanges}
-                className="flex items-center gap-1"
-                disabled={!hasUnsavedChanges || saveResumeDataMutation.isPending}
-              >
-                <X className="h-4 w-4" />
-                <span>Discard</span>
-              </Button>
-              <Button
-                onClick={handleSaveChanges}
-                className="flex items-center gap-1"
-                disabled={!hasUnsavedChanges || saveResumeDataMutation.isPending}
-              >
-                {saveResumeDataMutation.isPending ? (
-                  <span className="animate-spin">⌛</span>
-                ) : (
-                  <Save className="h-4 w-4" />
-                )}
-                <span>
-                  {saveResumeDataMutation.isPending ? 'Saving...' : 'Save'}
-                </span>
-              </Button>
-            </div>
-          )}
-  </div>
-  <div className="mx-auto w-full md:rounded-lg border-[0.5px] border-neutral-300 flex items-center justify-between">
+  return (
+    <div className="w-full h-screen bg-background flex flex-col">
+      <div className="max-w-3xl mx-auto w-full flex flex-col md:flex-row justify-between items-center px-4 md:px-0 gap-4">
+        <ToggleGroup
+          type="single"
+          value={isEditMode ? 'edit' : 'preview'}
+          onValueChange={(value) => setIsEditMode(value === 'edit')}
+          aria-label="View mode"
+        >
+          <ToggleGroupItem value="preview" aria-label="Preview mode">
+            <Eye className="h-4 w-4 mr-1" />
+            <span>Preview</span>
+          </ToggleGroupItem>
+          <ToggleGroupItem value="edit" aria-label="Edit mode">
+            <Edit className="h-4 w-4 mr-1" />
+            <span>Edit</span>
+          </ToggleGroupItem>
+        </ToggleGroup>
+
+        {isEditMode && (
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={handleDiscardChanges}
+              className="flex items-center gap-1"
+              disabled={!hasUnsavedChanges || saveResumeDataMutation.isPending}
+            >
+              <X className="h-4 w-4" />
+              <span>Discard</span>
+            </Button>
+            <Button
+              onClick={handleSaveChanges}
+              className="flex items-center gap-1"
+              disabled={!hasUnsavedChanges || saveResumeDataMutation.isPending}
+            >
+              {saveResumeDataMutation.isPending ? (
+                <span className="animate-spin">⌛</span>
+              ) : (
+                <Save className="h-4 w-4" />
+              )}
+              <span>
+                {saveResumeDataMutation.isPending ? 'Saving...' : 'Save'}
+              </span>
+            </Button>
+          </div>
+        )}
+      </div>
+      <div className="mx-auto w-full md:rounded-lg border-[0.5px] border-neutral-300 flex items-center justify-between">
         {isEditMode ? (
           <EditResume
             resume={localResumeData}
@@ -194,9 +200,137 @@ return (
         ) : (
           <FullResume
             resume={localResumeData}
+            mobileLeftPressed={mobileLeftPressed}
+            mobileRightPressed={mobileRightPressed}
+            mobileJumpPressed={mobileJumpPressed}
           />
         )}
-  </div>
-  </div>
+      </div>
+      {isMobile && !isEditMode && (
+        <>
+          <button
+            style={{
+              position: 'fixed',
+              bottom: '30px',
+              left: '30px',
+              zIndex: 1000,
+              padding: '10px',
+              borderRadius: '50%',
+              background: 'rgba(255, 255, 255, 0.7)',
+              border: '2px solid white',
+              color: 'black',
+              fontSize: '24px',
+              width: '60px',
+              height: '60px',
+              cursor: 'pointer',
+              touchAction: 'none',
+              userSelect: 'none',
+            }}
+            onPointerDown={(e) => {
+              e.stopPropagation();
+              setMobileLeftPressed(true);
+            }}
+            onPointerUp={(e) => {
+              e.stopPropagation();
+              setMobileLeftPressed(false);
+            }}
+            onTouchStart={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setMobileLeftPressed(true);
+            }}
+            onTouchEnd={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setMobileLeftPressed(false);
+            }}
+            onContextMenu={(e) => e.preventDefault()}
+          >
+            &lt;
+          </button>
+          <button
+            style={{
+              position: 'fixed',
+              bottom: '30px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              zIndex: 1000,
+              padding: '10px',
+              borderRadius: '10px',
+              background: 'rgba(255, 255, 255, 0.7)',
+              border: '2px solid white',
+              color: 'black',
+              fontSize: '18px',
+              width: '100px',
+              height: '50px',
+              cursor: 'pointer',
+              touchAction: 'none',
+              userSelect: 'none',
+            }}
+            onPointerDown={(e) => {
+              e.stopPropagation();
+              setMobileJumpPressed(true);
+            }}
+            onPointerUp={(e) => {
+              e.stopPropagation();
+              setMobileJumpPressed(false);
+            }}
+            onTouchStart={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setMobileJumpPressed(true);
+            }}
+            onTouchEnd={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setMobileJumpPressed(false);
+            }}
+            onContextMenu={(e) => e.preventDefault()}
+          >
+    
+          </button>
+          <button
+            style={{
+              position: 'fixed',
+              bottom: '30px',
+              right: '30px',
+              zIndex: 1000,
+              padding: '10px',
+              borderRadius: '50%',
+              background: 'rgba(255, 255, 255, 0.7)',
+              border: '2px solid white',
+              color: 'black',
+              fontSize: '24px',
+              width: '60px',
+              height: '60px',
+              cursor: 'pointer',
+              touchAction: 'none',
+              userSelect: 'none',
+            }}
+            onPointerDown={(e) => {
+              e.stopPropagation();
+              setMobileRightPressed(true);
+            }}
+            onPointerUp={(e) => {
+              e.stopPropagation();
+              setMobileRightPressed(false);
+            }}
+            onTouchStart={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setMobileRightPressed(true);
+            }}
+            onTouchEnd={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setMobileRightPressed(false);
+            }}
+            onContextMenu={(e) => e.preventDefault()}
+          >
+            &gt;
+          </button>
+        </>
+      )}
+    </div>
   );
 }
