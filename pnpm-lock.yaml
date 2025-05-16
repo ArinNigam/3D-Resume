@@ -185,6 +185,12 @@ importers:
       pdf-ts:
         specifier: ^0.0.2
         version: 0.0.2(webpack@4.47.0)
+      posthog-js:
+        specifier: ^1.242.2
+        version: 1.242.2
+      posthog-node:
+        specifier: ^4.17.1
+        version: 4.17.1
       react:
         specifier: ^19.1.0
         version: 19.1.0
@@ -2559,6 +2565,9 @@ packages:
     resolution: {integrity: sha512-XgZ0pFcakEUlbwQEVNg3+QAis1FyTL3Qel9FYy8pSkQqoG3PNoT0bOCQtOXcOkur21r2Eq2kI+IE+gsmAEVlYw==}
     engines: {node: '>=0.10.0'}
 
+  core-js@3.42.0:
+    resolution: {integrity: sha512-Sz4PP4ZA+Rq4II21qkNqOEDTDrCvcANId3xpIgB34NDkWc3UduWj2dqEtN9yZIq8Dk3HyPI33x9sqqU5C8sr0g==}
+
   core-util-is@1.0.3:
     resolution: {integrity: sha512-ZQBvi1DcpJ4GDqanjucZ2Hj3wEO5pZDS89BWbkcrvdxksJorwUDDZamX9ldFkp9aw2lmBDLgkObEA4DWNJ9FYQ==}
 
@@ -2906,6 +2915,9 @@ packages:
 
   fastq@1.19.1:
     resolution: {integrity: sha512-GwLTyxkCXjXbxqIhTsMI2Nui8huMPtnxg7krajPJAjnEG/iiOS7i+zCtWGZR9G0NBKbXKh6X9m9UIsYX/N6vvQ==}
+
+  fflate@0.4.8:
+    resolution: {integrity: sha512-FJqqoDBR00Mdj9ppamLa/Y7vxm+PRmNWA67N846RvsoYVMKB4q3y/de5PA7gUmRMYK/8CMz2GDZQmCRN1wBcWA==}
 
   fflate@0.6.10:
     resolution: {integrity: sha512-IQrh3lEPM93wVCEczc9SaAOvkmcoQn/G8Bo1e8ZPlY3X3bnAxWaBdvTdvM1hP62iZp0BXWDy4vTAy4fF0+Dlpg==}
@@ -3836,8 +3848,26 @@ packages:
     resolution: {integrity: sha512-dle9A3yYxlBSrt8Fu+IpjGT8SY8hN0mlaA6GY8t0P5PjIOZemULz/E2Bnm/2dcUOena75OTNkHI76uZBNUUq3A==}
     engines: {node: ^10 || ^12 || >=14}
 
+  posthog-js@1.242.2:
+    resolution: {integrity: sha512-bj5Bq9Z/TE24k0fbt/VoD13xsqCybuoLp7KkWmfknEiO63+1Ln/PnX/1CjppikE9yM7toQIWY3vY7hT/RTT57Q==}
+    peerDependencies:
+      '@rrweb/types': 2.0.0-alpha.17
+      rrweb-snapshot: 2.0.0-alpha.17
+    peerDependenciesMeta:
+      '@rrweb/types':
+        optional: true
+      rrweb-snapshot:
+        optional: true
+
+  posthog-node@4.17.1:
+    resolution: {integrity: sha512-cVlQPOwOPjakUnrueKRCQe1m2Ku+XzKaOos7Tn/zDZkkZFeBT/byP7tbNf7LiwhaBRWFBRowZZb/MsTtSRaorg==}
+    engines: {node: '>=15.0.0'}
+
   potpack@1.0.2:
     resolution: {integrity: sha512-choctRBIV9EMT9WGAZHn3V7t0Z2pMQyl0EZE6pFc/6ml3ssw7Dlf/oAOvFwjm1HVsqfQN8GfeFyJ+d8tRzqueQ==}
+
+  preact@10.26.6:
+    resolution: {integrity: sha512-5SRRBinwpwkaD+OqlBDeITlRgvd8I8QlxHJw9AxSdMNV6O+LodN9nUyYGpSF7sadHjs6RzeFShMexC6DbtWr9g==}
 
   prisma@6.7.0:
     resolution: {integrity: sha512-vArg+4UqnQ13CVhc2WUosemwh6hr6cr6FY2uzDvCIFwH8pu8BXVv38PktoMLVjtX7sbYThxbnZF5YiR8sN2clw==}
@@ -4637,6 +4667,9 @@ packages:
   web-streams-polyfill@4.0.0-beta.3:
     resolution: {integrity: sha512-QW95TCTaHmsYfHDybGMwO5IJIM93I/6vTRk+daHTWFPhwh+C8Cg7j7XyKrwrj8Ib6vYXe0ocYNrmzY4xAAN6ug==}
     engines: {node: '>= 14'}
+
+  web-vitals@4.2.4:
+    resolution: {integrity: sha512-r4DIlprAGwJ7YM11VZp4R884m0Vmgr6EAKe3P+kO0PPj3Unqyvv59rczf6UiGcb9Z8QxZVcqKNwv/g0WNdWwsw==}
 
   webgl-constants@1.1.1:
     resolution: {integrity: sha512-LkBXKjU5r9vAW7Gcu3T5u+5cvSvh5WwINdr0C+9jpzVB41cjQAP5ePArDtk/WHYdVj0GefCgM73BA7FlIiNtdg==}
@@ -7703,6 +7736,8 @@ snapshots:
 
   copy-descriptor@0.1.1: {}
 
+  core-js@3.42.0: {}
+
   core-util-is@1.0.3: {}
 
   country-flag-icons@1.5.19: {}
@@ -8093,6 +8128,8 @@ snapshots:
   fastq@1.19.1:
     dependencies:
       reusify: 1.1.0
+
+  fflate@0.4.8: {}
 
   fflate@0.6.10: {}
 
@@ -9053,7 +9090,22 @@ snapshots:
       picocolors: 1.1.1
       source-map-js: 1.2.1
 
+  posthog-js@1.242.2:
+    dependencies:
+      core-js: 3.42.0
+      fflate: 0.4.8
+      preact: 10.26.6
+      web-vitals: 4.2.4
+
+  posthog-node@4.17.1:
+    dependencies:
+      axios: 1.9.0
+    transitivePeerDependencies:
+      - debug
+
   potpack@1.0.2: {}
+
+  preact@10.26.6: {}
 
   prisma@6.7.0(typescript@5.8.3):
     dependencies:
@@ -9960,6 +10012,8 @@ snapshots:
       - supports-color
 
   web-streams-polyfill@4.0.0-beta.3: {}
+
+  web-vitals@4.2.4: {}
 
   webgl-constants@1.1.1: {}
 
