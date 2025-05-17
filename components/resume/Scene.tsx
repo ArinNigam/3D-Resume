@@ -130,6 +130,23 @@ export const Scene = ({
   const targetFov = useRef(50)
   const [freeCamera, setFreeCamera] = useState(false)
   const [playerPos, setPlayerPos] = useState<Vector3>(new Vector3())
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  const backgroundAudioRef = useRef<HTMLAudioElement | null>(null);
+  const carAudioRef = useRef<HTMLAudioElement | null>(null);
+  const carSoundIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    const checkDevice = () => {
+      setIsDesktop(window.innerWidth > 768); // Example breakpoint for desktop
+    };
+
+    checkDevice();
+    window.addEventListener('resize', checkDevice);
+    return () => {
+      window.removeEventListener('resize', checkDevice);
+    };
+  }, []);
 
   useEffect(() => {
     camera.up.set(0, 1, 0)
@@ -144,6 +161,55 @@ export const Scene = ({
       window.removeEventListener('click', handleTouchpadClick)
     }
   }, [camera, playerMoving, freeCamera])
+
+  useEffect(() => {
+    // Initialize audio elements
+    backgroundAudioRef.current = new Audio('/music/background.mp3');
+    backgroundAudioRef.current.loop = true;
+
+    carAudioRef.current = new Audio('/music/car.mp3');
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        // Play background music and start car sound interval when tab is active
+        backgroundAudioRef.current?.play();
+        carSoundIntervalRef.current = setInterval(() => {
+          carAudioRef.current?.play();
+        }, 30000); // 30 seconds
+      } else {
+        // Pause music and clear interval when tab is inactive
+        backgroundAudioRef.current?.pause();
+        if (carSoundIntervalRef.current) {
+          clearInterval(carSoundIntervalRef.current);
+          carSoundIntervalRef.current = null;
+        }
+      }
+    };
+
+    // Add event listener for visibility change
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // Play music initially if the tab is active
+    if (document.visibilityState === 'visible') {
+      handleVisibilityChange();
+    }
+
+    return () => {
+      // Cleanup
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      if (backgroundAudioRef.current) {
+        backgroundAudioRef.current.pause();
+        backgroundAudioRef.current.currentTime = 0;
+      }
+      if (carAudioRef.current) {
+        carAudioRef.current.pause();
+        carAudioRef.current.currentTime = 0;
+      }
+      if (carSoundIntervalRef.current) {
+        clearInterval(carSoundIntervalRef.current);
+      }
+    };
+  }, []);
 
   useFrame(() => {
     if (!playerRef.current) return;
@@ -171,7 +237,7 @@ export const Scene = ({
     perspCam.fov = lerp(perspCam.fov, targetFov.current, 0.08);
     perspCam.updateProjectionMatrix();
 
-    const sectionLength = 15;
+    const sectionLength = 10;
     const newSection = Math.floor(pos.x / sectionLength);
     if (newSection !== currentSection) {
       setCurrentSection(newSection);
@@ -183,8 +249,9 @@ export const Scene = ({
     scene.background = new Color('#f8c291')
   }, [scene])
 
-  const expCount = resume.workExperience.length
-  const centerIndex = (expCount - 1) / 2
+  const expCount = resume.workExperience.length;
+  const eduCount = resume.education.length;
+  const totalSections = expCount + eduCount;
 
   return (
     <>
@@ -372,6 +439,91 @@ export const Scene = ({
         )
       })}
 
+      {/* Key icons on the road for desktop users */}
+      {isDesktop && (
+        <group position={[-8, 0.2, 2.5]} rotation={[0, -Math.PI / 2, 0]}>
+          {/* Instruction text */}
+          <DreiText
+        color="white"
+        fontSize={0.5}
+        position={[0.5, 0.2, -1]}
+        rotation={[-Math.PI / 2, 0, 0]}
+        anchorX="center"
+        anchorY="middle"
+          >
+        USE ARROW KEYS TO MOVE
+          </DreiText>
+
+          {/* Left key */}
+          <mesh position={[-2, 0, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <boxGeometry args={[1, 1, 0.1]} />
+        <meshStandardMaterial color="#ffffff" />
+        <DreiText
+          color="black"
+          fontSize={0.4}
+          position={[0, 0, 0.06]}
+          anchorX="center"
+          anchorY="middle"
+        >
+          ←
+        </DreiText>
+          </mesh>
+
+          {/* Jump key */}
+          <mesh position={[0, 0, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <boxGeometry args={[1, 1, 0.1]} />
+        <meshStandardMaterial color="#ffffff" />
+        <DreiText
+          color="black"
+          fontSize={0.4}
+          position={[0, 0, 0.06]}
+          anchorX="center"
+          anchorY="middle"
+        >
+          ␣
+        </DreiText>
+          </mesh>
+
+          {/* Right key */}
+          <mesh position={[2, 0, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <boxGeometry args={[1, 1, 0.1]} />
+        <meshStandardMaterial color="#ffffff" />
+        <DreiText
+          color="black"
+          fontSize={0.4}
+          position={[0, 0, 0.06]}
+          anchorX="center"
+          anchorY="middle"
+        >
+          →
+        </DreiText>
+          </mesh>
+        </group>
+      )}
+
+      {/* Footer with "Made with ❤️" and "by [name]" after all sections */}
+      <group position={[(totalSections-1) * 15 + 10 , 0.21, -1]}>
+        <DreiText
+          color="white"
+          fontSize={1}
+          rotation={[-Math.PI / 2, 0, -Math.PI/2]} // Rotate to lie flat on the ground
+          anchorX="center"
+          anchorY="middle"
+        >
+          Made with ❤️
+        </DreiText>
+        <DreiText
+          color="white"
+          fontSize={1}
+          position={[-2, 0, 0]} // Offset slightly to place below the first line
+          rotation={[-Math.PI / 2, 0, -Math.PI/2]} // Rotate to lie flat on the ground
+          anchorX="center"
+          anchorY="middle"
+        >
+          by {resume.header.name}
+        </DreiText>
+      </group>
+
       <Physics gravity={[0, gravity, 0]}>
         <Ground />
         <Player 
@@ -383,5 +535,5 @@ export const Scene = ({
         />
       </Physics>
     </>
-  )
-}
+  );
+};

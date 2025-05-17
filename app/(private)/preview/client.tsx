@@ -1,4 +1,6 @@
 'use client';
+import React, { useState, useEffect } from 'react';
+import CustomLoader from '@/components/CustomLoader';
 import LoadingFallback from '@/components/LoadingFallback';
 import { PopupSiteLive } from '@/components/PopupSiteLive';
 import PreviewActionbar from '@/components/PreviewActionbar';
@@ -8,7 +10,6 @@ import { useUserActions } from '@/hooks/useUserActions';
 import { ResumeData } from '@/lib/server/redisActions';
 import { getSelfSoUrl } from '@/lib/utils';
 import { useUser } from '@clerk/nextjs';
-import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Eye, Edit, Save, X } from 'lucide-react';
@@ -27,6 +28,16 @@ import { toast } from 'sonner';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 export default function PreviewClient({ messageTip }: { messageTip?: string }) {
+  const [isLoadingComplete, setIsLoadingComplete] = useState(false);
+  const [localResumeData, setLocalResumeData] = useState<ResumeData>();
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [showDiscardConfirmation, setShowDiscardConfirmation] = useState(false);
+  const [showModalSiteLive, setModalSiteLive] = useState(false);
+  const [mobileLeftPressed, setMobileLeftPressed] = useState(false);
+  const [mobileRightPressed, setMobileRightPressed] = useState(false);
+  const [mobileJumpPressed, setMobileJumpPressed] = useState(false);
+
   const { user } = useUser();
   const {
     resumeQuery,
@@ -34,24 +45,22 @@ export default function PreviewClient({ messageTip }: { messageTip?: string }) {
     usernameQuery,
     saveResumeDataMutation,
   } = useUserActions();
-  const [showModalSiteLive, setModalSiteLive] = useState(false);
-  const [localResumeData, setLocalResumeData] = useState<ResumeData>();
-  const [isEditMode, setIsEditMode] = useState(false);
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const [showDiscardConfirmation, setShowDiscardConfirmation] = useState(false);
 
   const isMobile = useIsMobile();
-  const [mobileLeftPressed, setMobileLeftPressed] = useState(false);
-  const [mobileRightPressed, setMobileRightPressed] = useState(false);
-  const [mobileJumpPressed, setMobileJumpPressed] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoadingComplete(true); // Set loading complete after 10 seconds
+    }, 10000); // 10 seconds
+
+    return () => clearTimeout(timer); // Cleanup timer on unmount
+  }, []);
 
   useEffect(() => {
     if (resumeQuery.data?.resume?.resumeData) {
       setLocalResumeData(resumeQuery.data?.resume?.resumeData);
     }
   }, [resumeQuery.data?.resume?.resumeData]);
-
-  console.log('resumeQuery', resumeQuery.data);
 
   const handleSaveChanges = async () => {
     if (!localResumeData) {
@@ -91,6 +100,10 @@ export default function PreviewClient({ messageTip }: { messageTip?: string }) {
     setLocalResumeData(newResume);
     setHasUnsavedChanges(true);
   };
+
+  if (!isLoadingComplete) {
+    return <CustomLoader redirectPath="/preview" />;
+  }
 
   if (
     resumeQuery.isLoading ||

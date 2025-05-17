@@ -2,9 +2,10 @@ import { auth } from '@clerk/nextjs/server';
 import { getResume, storeResume } from '../../../lib/server/redisActions';
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
-import LoadingFallback from '../../../components/LoadingFallback';
+import CustomLoader from '@/components/CustomLoader';
 import { scrapePdfContent } from '@/lib/server/scrapePdfContent';
 import { deleteS3File } from '@/lib/server/deleteS3File';
+import LoadingFallback from '@/components/LoadingFallback';
 
 async function PdfProcessing({ userId }: { userId: string }) {
   const resume = await getResume(userId);
