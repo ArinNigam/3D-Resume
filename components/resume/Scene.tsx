@@ -10,6 +10,7 @@ import { Vector3, PerspectiveCamera, Color, BackSide } from 'three'
 import { useSpring, a } from '@react-spring/three'
 import { Rain } from './Rain'
 import { DirectionSign } from './DirectionSign'
+import { soundManager } from '@/lib/SoundManager'
 
 const AnimatedBoard = ({
   positionX = -5,
@@ -78,12 +79,12 @@ export const Scene = ({
   resume,
   mobileLeftPressed,
   mobileRightPressed,
-  mobileJumpPressed, // Added prop
+  mobileJumpPressed,
 }: { 
   resume: ResumeData,
   mobileLeftPressed: boolean,
   mobileRightPressed: boolean,
-  mobileJumpPressed: boolean, // Added prop type
+  mobileJumpPressed: boolean,
 }) => {
   const { gravity } = useControls('Physics', {
     gravity: {
@@ -132,10 +133,6 @@ export const Scene = ({
   const [playerPos, setPlayerPos] = useState<Vector3>(new Vector3())
   const [isDesktop, setIsDesktop] = useState(false);
 
-  const backgroundAudioRef = useRef<HTMLAudioElement | null>(null);
-  const carAudioRef = useRef<HTMLAudioElement | null>(null);
-  const carSoundIntervalRef = useRef<NodeJS.Timeout | null>(null);
-
   useEffect(() => {
     const checkDevice = () => {
       setIsDesktop(window.innerWidth > 768); // Example breakpoint for desktop
@@ -163,51 +160,30 @@ export const Scene = ({
   }, [camera, playerMoving, freeCamera])
 
   useEffect(() => {
-    // Initialize audio elements
-    backgroundAudioRef.current = new Audio('/music/background.mp3');
-    backgroundAudioRef.current.loop = true;
+    soundManager.addSound('background', '/music/background.mp3', true);
+    soundManager.addSound('car', '/music/car.mp3');
 
-    carAudioRef.current = new Audio('/music/car.mp3');
+    const playCarSound = () => soundManager.playSound('car');
 
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
-        // Play background music and start car sound interval when tab is active
-        backgroundAudioRef.current?.play();
-        carSoundIntervalRef.current = setInterval(() => {
-          carAudioRef.current?.play();
-        }, 30000); // 30 seconds
+        soundManager.playSound('background');
+        setInterval(playCarSound, 30000); // Play car sound every 30 seconds
       } else {
-        // Pause music and clear interval when tab is inactive
-        backgroundAudioRef.current?.pause();
-        if (carSoundIntervalRef.current) {
-          clearInterval(carSoundIntervalRef.current);
-          carSoundIntervalRef.current = null;
-        }
+        soundManager.stopSound('background');
       }
     };
 
-    // Add event listener for visibility change
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
-    // Play music initially if the tab is active
     if (document.visibilityState === 'visible') {
       handleVisibilityChange();
     }
 
     return () => {
-      // Cleanup
       document.removeEventListener('visibilitychange', handleVisibilityChange);
-      if (backgroundAudioRef.current) {
-        backgroundAudioRef.current.pause();
-        backgroundAudioRef.current.currentTime = 0;
-      }
-      if (carAudioRef.current) {
-        carAudioRef.current.pause();
-        carAudioRef.current.currentTime = 0;
-      }
-      if (carSoundIntervalRef.current) {
-        clearInterval(carSoundIntervalRef.current);
-      }
+      soundManager.stopSound('background');
+      soundManager.stopSound('car');
     };
   }, []);
 

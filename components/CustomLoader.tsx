@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { soundManager } from '@/lib/SoundManager';
 
 interface CustomLoaderProps {
   redirectPath: string;
@@ -9,7 +10,6 @@ interface CustomLoaderProps {
 const CustomLoader: React.FC<CustomLoaderProps> = ({ redirectPath }) => {
   const router = useRouter();
   const [isClient, setIsClient] = useState(false);
-  const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     setIsClient(true); // Ensure the component renders only on the client side
@@ -18,27 +18,16 @@ const CustomLoader: React.FC<CustomLoaderProps> = ({ redirectPath }) => {
   useEffect(() => {
     if (!isClient) return;
 
-    const audioElement = new Audio('/music/intro.mp3');
-    setAudio(audioElement);
-
-    const playAudio = () => {
-      audioElement.play().catch((err) => {
-        console.error('Audio playback failed:', err);
-      });
-    };
-
-    // Attach event listener to ensure audio plays on user interaction
-    document.addEventListener('click', playAudio, { once: true });
+    soundManager.addSound('intro', '/music/intro.mp3', true);
+    soundManager.playSound('intro');
 
     const timeout = setTimeout(() => {
       router.push(redirectPath); // Navigate to the specified path after 10 seconds
     }, 10000); // 10 seconds
 
     return () => {
-      audioElement.pause();
-      audioElement.currentTime = 0;
+      soundManager.stopSound('intro');
       clearTimeout(timeout);
-      document.removeEventListener('click', playAudio);
     };
   }, [isClient, router, redirectPath]);
 

@@ -26,6 +26,7 @@ import {
 
 import { toast } from 'sonner';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { soundManager } from '@/lib/SoundManager';
 
 export default function PreviewClient({ messageTip }: { messageTip?: string }) {
   const [isLoadingComplete, setIsLoadingComplete] = useState(false);
@@ -61,6 +62,15 @@ export default function PreviewClient({ messageTip }: { messageTip?: string }) {
       setLocalResumeData(resumeQuery.data?.resume?.resumeData);
     }
   }, [resumeQuery.data?.resume?.resumeData]);
+
+  useEffect(() => {
+    soundManager.addSound('preview', '/music/preview.mp3', true);
+    soundManager.playSound('preview');
+
+    return () => {
+      soundManager.stopSound('preview');
+    };
+  }, []);
 
   const handleSaveChanges = async () => {
     if (!localResumeData) {

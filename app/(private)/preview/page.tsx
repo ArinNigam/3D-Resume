@@ -8,8 +8,6 @@ import {
 } from '../../../lib/server/redisActions';
 import { generateResumeObject } from '@/lib/server/ai/generateResumeObject';
 import { redirect } from 'next/navigation';
-import { Suspense } from 'react';
-import CustomLoader from '../../../components/CustomLoader';
 import { MAX_USERNAME_LENGTH } from '@/lib/config';
 import { currentUser } from '@clerk/nextjs/server';
 

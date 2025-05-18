@@ -7,6 +7,7 @@ import { Vector3, Quaternion } from 'three'
 import { useGLTF, useAnimations } from '@react-three/drei'
 import React from 'react'
 
+
 type PlayerProps = {
   onMoveChange?: (moving: boolean) => void;
   mobileLeftPressed?: boolean;
@@ -98,6 +99,12 @@ export const Player = forwardRef<RigidBody, PlayerProps>((props, ref) => {
     audio.loop = true;
     walkAudioRef.current = audio;
 
+    const playAudio = () => {
+      if (walkAudioRef.current?.paused) {
+        walkAudioRef.current.play().catch((err) => console.error("Error playing walk sound:", err));
+      }
+    };
+
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
         // Resume walk sound if the player is moving
@@ -142,9 +149,9 @@ export const Player = forwardRef<RigidBody, PlayerProps>((props, ref) => {
           actions[walkAnim].reset().fadeIn(0.1).play()
           currentAnimRef.current = walkAnim
         }
-        // Play walk sound
+        // Ensure walk sound plays on both desktop and mobile
         if (walkAudioRef.current && walkAudioRef.current.paused) {
-          walkAudioRef.current.play().catch(error => console.error("Error playing walk sound:", error));
+          walkAudioRef.current.play().catch((error) => console.error("Error playing walk sound:", error));
         }
       } else if (actions[walkAnim]) {
         if (currentAnimRef.current === walkAnim) {
