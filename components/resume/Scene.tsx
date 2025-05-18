@@ -455,48 +455,51 @@ export const Scene = ({
           </DreiText>
 
           {/* Left key */}
-          <mesh position={[-2, 0, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <boxGeometry args={[1, 1, 0.1]} />
-        <meshStandardMaterial color="#ffffff" />
-        <DreiText
-          color="black"
-          fontSize={0.4}
-          position={[0, 0, 0.06]}
-          anchorX="center"
-          anchorY="middle"
-        >
-          ←
-        </DreiText>
-          </mesh>
+            <mesh position={[-2, 0, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <boxGeometry args={[1, 1, 0.1]} />
+          <meshStandardMaterial color="#ffffff" />
+          <DreiText
+            color="black"
+            fontSize={0.4}
+            position={[0, 0, 0.06]}
+            anchorX="center"
+            anchorY="middle"
+            userData={{ selectable: false }} 
+          >
+            ←
+          </DreiText>
+            </mesh>
 
-          {/* Jump key */}
-          <mesh position={[0, 0, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <boxGeometry args={[1, 1, 0.1]} />
-        <meshStandardMaterial color="#ffffff" />
-        <DreiText
-          color="black"
-          fontSize={0.4}
-          position={[0, 0, 0.06]}
-          anchorX="center"
-          anchorY="middle"
-        >
-          ␣
-        </DreiText>
-          </mesh>
+            {/* Jump key */}
+            <mesh position={[0, 0, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <boxGeometry args={[1, 1, 0.1]} />
+          <meshStandardMaterial color="#ffffff" />
+          <DreiText
+            color="black"
+            fontSize={0.4}
+            position={[0, 0, 0.06]}
+            anchorX="center"
+            anchorY="middle"
+            userData={{ selectable: false }}
+          >
+            ␣
+          </DreiText>
+            </mesh>
 
-          {/* Right key */}
-          <mesh position={[2, 0, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <boxGeometry args={[1, 1, 0.1]} />
-        <meshStandardMaterial color="#ffffff" />
-        <DreiText
-          color="black"
-          fontSize={0.4}
-          position={[0, 0, 0.06]}
-          anchorX="center"
-          anchorY="middle"
-        >
-          →
-        </DreiText>
+            {/* Right key */}
+            <mesh position={[2, 0, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <boxGeometry args={[1, 1, 0.1]} />
+          <meshStandardMaterial color="#ffffff" />
+          <DreiText
+            color="black"
+            fontSize={0.4}
+            position={[0, 0, 0.06]}
+            anchorX="center"
+            anchorY="middle"
+            userData={{ selectable: false }}
+          >
+            →
+          </DreiText>
           </mesh>
         </group>
       )}

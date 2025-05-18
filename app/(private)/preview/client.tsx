@@ -303,23 +303,7 @@ export default function PreviewClient({ messageTip }: { messageTip?: string }) {
       {isMobile && !isEditMode && (
         <>
           <button
-            style={{
-              position: 'fixed',
-              bottom: '30px',
-              left: '30px',
-              zIndex: 1000,
-              padding: '10px',
-              borderRadius: '50%',
-              background: 'rgba(255, 255, 255, 0.7)',
-              border: '2px solid white',
-              color: 'black',
-              fontSize: '24px',
-              width: '60px',
-              height: '60px',
-              cursor: 'pointer',
-              touchAction: 'none',
-              userSelect: 'none',
-            }}
+            className="fixed bottom-8 left-8 z-50 p-2 rounded-full bg-white/70 border-2 border-white text-black text-2xl w-15 h-15 cursor-pointer touch-none select-none"
             onPointerDown={(e) => {
               e.stopPropagation();
               setMobileLeftPressed(true);
@@ -343,24 +327,7 @@ export default function PreviewClient({ messageTip }: { messageTip?: string }) {
             &lt;
           </button>
           <button
-            style={{
-              position: 'fixed',
-              bottom: '30px',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              zIndex: 1000,
-              padding: '10px',
-              borderRadius: '10px',
-              background: 'rgba(255, 255, 255, 0.7)',
-              border: '2px solid white',
-              color: 'black',
-              fontSize: '18px',
-              width: '100px',
-              height: '50px',
-              cursor: 'pointer',
-              touchAction: 'none',
-              userSelect: 'none',
-            }}
+            className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50 p-2 rounded-lg bg-white/70 border-2 border-white text-black text-lg w-25 h-12 cursor-pointer touch-none select-none"
             onPointerDown={(e) => {
               e.stopPropagation();
               setMobileJumpPressed(true);
@@ -381,26 +348,9 @@ export default function PreviewClient({ messageTip }: { messageTip?: string }) {
             }}
             onContextMenu={(e) => e.preventDefault()}
           >
-            Jump
           </button>
           <button
-            style={{
-              position: 'fixed',
-              bottom: '30px',
-              right: '30px',
-              zIndex: 1000,
-              padding: '10px',
-              borderRadius: '50%',
-              background: 'rgba(255, 255, 255, 0.7)',
-              border: '2px solid white',
-              color: 'black',
-              fontSize: '24px',
-              width: '60px',
-              height: '60px',
-              cursor: 'pointer',
-              touchAction: 'none',
-              userSelect: 'none',
-            }}
+            className="fixed bottom-8 right-8 z-50 p-2 rounded-full bg-white/70 border-2 border-white text-black text-2xl w-15 h-15 cursor-pointer touch-none select-none"
             onPointerDown={(e) => {
               e.stopPropagation();
               setMobileRightPressed(true);

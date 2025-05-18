@@ -123,6 +123,21 @@ export const Player = forwardRef<RigidBody, PlayerProps>((props, ref) => {
     };
   }, []);
 
+  // Request audio permission at the start
+  React.useEffect(() => {
+    const requestAudioPermission = async () => {
+      try {
+        await navigator.mediaDevices.getUserMedia({ audio: true });
+        console.log("Audio permission granted.");
+      } catch (error) {
+        console.error("Audio permission denied:", error);
+        alert("Audio permission is required for the app to function properly.");
+      }
+    };
+
+    requestAudioPermission();
+  }, []);
+
   useFrame((state) => {
     if (!bodyRef.current) return
 
