@@ -63,15 +63,6 @@ export default function PreviewClient({ messageTip }: { messageTip?: string }) {
     }
   }, [resumeQuery.data?.resume?.resumeData]);
 
-  useEffect(() => {
-    soundManager.addSound('preview', '/music/preview.mp3', true);
-    soundManager.playSound('preview');
-
-    return () => {
-      soundManager.stopSound('preview');
-    };
-  }, []);
-
   const handleSaveChanges = async () => {
     if (!localResumeData) {
       toast.error('No resume data to save');
@@ -264,7 +255,7 @@ export default function PreviewClient({ messageTip }: { messageTip?: string }) {
         )}
       </div>
 
-      <div className="max-w-3xl mx-auto w-full md:rounded-lg border-[0.5px] border-neutral-300 flex items-center justify-between px-4">
+      <div className="max-w-3xl mx-auto w-full md:rounded-lg border-[0.5px] border-neutral-300 flex items-center justify-between">
         {isEditMode ? (
           <EditResume
             resume={localResumeData}
@@ -313,7 +304,7 @@ export default function PreviewClient({ messageTip }: { messageTip?: string }) {
       {isMobile && !isEditMode && (
         <>
           <button
-            className="fixed bottom-8 left-8 z-50 p-2 rounded-full bg-white/70 border-2 border-white text-black text-2xl w-15 h-15 cursor-pointer touch-none select-none"
+            className="fixed bottom-8 left-8 z-50 p-2 rounded-sm bg-white/70 border-2 border-white text-black text-2xl w-15 h-15 cursor-pointer touch-none select-none"
             onPointerDown={(e) => {
               e.stopPropagation();
               setMobileLeftPressed(true);
@@ -337,7 +328,7 @@ export default function PreviewClient({ messageTip }: { messageTip?: string }) {
             &lt;
           </button>
           <button
-            className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50 p-2 rounded-lg bg-white/70 border-2 border-white text-black text-lg w-25 h-12 cursor-pointer touch-none select-none"
+            className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50 p-2 rounded-lg bg-white/70 border-2 border-white text-black text-lg w-24 h-12 cursor-pointer touch-none select-none"
             onPointerDown={(e) => {
               e.stopPropagation();
               setMobileJumpPressed(true);
@@ -360,7 +351,7 @@ export default function PreviewClient({ messageTip }: { messageTip?: string }) {
           >
           </button>
           <button
-            className="fixed bottom-8 right-8 z-50 p-2 rounded-full bg-white/70 border-2 border-white text-black text-2xl w-15 h-15 cursor-pointer touch-none select-none"
+            className="fixed bottom-8 right-8 z-50 p-2 rounded-sm bg-white/70 border-2 border-white text-black text-2xl w-15 h-15 cursor-pointer touch-none select-none"
             onPointerDown={(e) => {
               e.stopPropagation();
               setMobileRightPressed(true);

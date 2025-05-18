@@ -168,9 +168,10 @@ export const Scene = ({
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
         soundManager.playSound('background');
-        setInterval(playCarSound, 30000); // Play car sound every 30 seconds
+        setInterval(playCarSound, 30000); 
       } else {
         soundManager.stopSound('background');
+        soundManager.stopSound('car');
       }
     };
 
