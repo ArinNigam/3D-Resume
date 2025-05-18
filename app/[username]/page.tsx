@@ -29,7 +29,7 @@ export default function ProfilePage({
   }
 
   return (
-    <div className="w-full h-screen bg-background flex flex-col">
+    <div className="w-full h-screen bg-background flex flex-col select-none">
       <div className="flex-grow flex items-center justify-center">
         <FullResume
           resume={localResumeData}
