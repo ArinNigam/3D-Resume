@@ -8,10 +8,9 @@ import {
 } from '../../../lib/server/redisActions';
 import { generateResumeObject } from '@/lib/server/ai/generateResumeObject';
 import { redirect } from 'next/navigation';
-import { Suspense } from 'react';
-import LoadingFallback from '../../../components/LoadingFallback';
 import { MAX_USERNAME_LENGTH } from '@/lib/config';
 import { currentUser } from '@clerk/nextjs/server';
+
 
 async function LLMProcessing({ userId }: { userId: string }) {
   const user = await currentUser();
@@ -87,13 +86,7 @@ export default async function Preview() {
 
   return (
     <>
-      <Suspense
-        fallback={
-          <LoadingFallback message="Creating your personal website..." />
-        }
-      >
-        <LLMProcessing userId={userId} />
-      </Suspense>
+      <LLMProcessing userId={userId} />
     </>
   );
 }

@@ -7,14 +7,14 @@ import { Leva } from 'leva';
 
 export const FullResume = ({
   resume,
-  mobileLeftPressed, // Added prop
-  mobileRightPressed, // Added prop
-  mobileJumpPressed, // Added prop
+  mobileLeftPressed, 
+  mobileRightPressed,
+  mobileJumpPressed, 
 }: {
   resume?: ResumeData | null;
-  mobileLeftPressed: boolean; // Added prop type
-  mobileRightPressed: boolean; // Added prop type
-  mobileJumpPressed: boolean; // Added prop type
+  mobileLeftPressed: boolean; 
+  mobileRightPressed: boolean; 
+  mobileJumpPressed: boolean; 
 }) => {
   if (!resume) {
     return <LoadingFallback message="Loading Resume..." />;
@@ -40,9 +40,9 @@ export const FullResume = ({
       >
         <Scene
           resume={resume}
-          mobileLeftPressed={mobileLeftPressed} // Pass prop
-          mobileRightPressed={mobileRightPressed} // Pass prop
-          mobileJumpPressed={mobileJumpPressed} // Pass prop
+          mobileLeftPressed={mobileLeftPressed} 
+          mobileRightPressed={mobileRightPressed} 
+          mobileJumpPressed={mobileJumpPressed} 
         />
       </Canvas>
     </div>

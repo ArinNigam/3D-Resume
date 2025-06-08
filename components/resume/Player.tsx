@@ -7,6 +7,7 @@ import { Vector3, Quaternion } from 'three'
 import { useGLTF, useAnimations } from '@react-three/drei'
 import React from 'react'
 
+
 type PlayerProps = {
   onMoveChange?: (moving: boolean) => void;
   mobileLeftPressed?: boolean;
@@ -94,12 +95,34 @@ export const Player = forwardRef<RigidBody, PlayerProps>((props, ref) => {
 
   // Initialize and manage walk audio
   React.useEffect(() => {
-    const audio = new Audio('/music/walk.mp3');
+    const audio = new Audio('/music/walk3.mp3');
     audio.loop = true;
     walkAudioRef.current = audio;
 
+    const playAudio = () => {
+      if (walkAudioRef.current?.paused) {
+        walkAudioRef.current.play().catch((err) => console.error("Error playing walk sound:", err));
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        // Resume walk sound if the player is moving
+        if (prevMovingRef.current && walkAudioRef.current?.paused) {
+          walkAudioRef.current.play().catch((err) => console.error("Error playing walk sound:", err));
+        }
+      } else {
+        // Pause walk sound when tab is inactive
+        walkAudioRef.current?.pause();
+      }
+    };
+
+    // Add event listener for visibility change
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
     return () => {
-      // Cleanup audio when component unmounts
+      // Cleanup
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
       if (walkAudioRef.current) {
         walkAudioRef.current.pause();
         walkAudioRef.current = null;
@@ -126,9 +149,9 @@ export const Player = forwardRef<RigidBody, PlayerProps>((props, ref) => {
           actions[walkAnim].reset().fadeIn(0.1).play()
           currentAnimRef.current = walkAnim
         }
-        // Play walk sound
+        // Ensure walk sound plays on both desktop and mobile
         if (walkAudioRef.current && walkAudioRef.current.paused) {
-          walkAudioRef.current.play().catch(error => console.error("Error playing walk sound:", error));
+          walkAudioRef.current.play().catch((error) => console.error("Error playing walk sound:", error));
         }
       } else if (actions[walkAnim]) {
         if (currentAnimRef.current === walkAnim) {
@@ -163,12 +186,12 @@ export const Player = forwardRef<RigidBody, PlayerProps>((props, ref) => {
     }
 
     let deltaZ = 0;
-    if (keys.backward) { // Assuming no mobile forward/backward for now
-      deltaZ += 1;
-    }
-    if (keys.forward) { // Assuming no mobile forward/backward for now
-      deltaZ -= 1;
-    }
+    // if (keys.backward) { // Assuming no mobile forward/backward for now
+    //   deltaZ += 1;
+    // }
+    // if (keys.forward) { // Assuming no mobile forward/backward for now
+    //   deltaZ -= 1;
+    // }
 
     newVelocity.x = deltaX * movementSpeed;
     newVelocity.z = deltaZ * movementSpeed;

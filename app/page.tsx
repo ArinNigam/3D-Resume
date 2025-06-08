@@ -4,10 +4,10 @@ import { TopMenu } from '../components/TopMenu';
 import { Footer } from '../components/Footer';
 import { BorderBeam } from '@/components/ui/BorderBeam';
 import { BlurFade } from '@/components/ui/BlurFade';
+
 export default async function Home() {
- 
   return (
-    <>
+    <div className="select-none">
       <TopMenu />
 
       <section className="flex-1 flex flex-col min-h-screen">
@@ -18,7 +18,7 @@ export default async function Home() {
             <div className="w-full md:w-1/2 max-w-[378px] flex flex-col justify-center items-center md:items-start ">
               <div className="max-w-md text-center md:text-left">
                 <div className="inline-block font-mono gap-2.5 px-3 py-1.5 rounded bg-[#ffb86b]/20 text-sm mb-5 text-[#ffb86b] shadow-[0_0_10px_2px_#ffb86b] animate-pulse">
-                  Inspired by GTA 6
+                  Inspired by GTA VI
                 </div>
                 <h1
                   className="text-[38px] font-extrabold mb-4 flex items-center justify-center md:justify-start gap-4 flex-wrap font-mono leading-tight text-white drop-shadow-[0_0_16px_#ff6e48]"
@@ -71,6 +71,6 @@ export default async function Home() {
           </div>
         </div>
       </section>
-    </>
+    </div>
   );
 }
