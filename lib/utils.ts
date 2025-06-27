@@ -6,9 +6,6 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function getSelfSoUrl(username: string) {
-  const domain =
-    process.env.NODE_ENV === 'development'
-      ? 'http://localhost:3000'
-      : 'https://self.so';
-  return `${domain}/${username}`;
+  const { protocol, host } = window.location;
+  return `${protocol}//${host}/${username}`;
 }

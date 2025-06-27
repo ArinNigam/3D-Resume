@@ -1,4 +1,6 @@
 'use client';
+import React, { useState, useEffect } from 'react';
+import CustomLoader from '@/components/CustomLoader';
 import LoadingFallback from '@/components/LoadingFallback';
 import { PopupSiteLive } from '@/components/PopupSiteLive';
 import PreviewActionbar from '@/components/PreviewActionbar';
@@ -8,7 +10,6 @@ import { useUserActions } from '@/hooks/useUserActions';
 import { ResumeData } from '@/lib/server/redisActions';
 import { getSelfSoUrl } from '@/lib/utils';
 import { useUser } from '@clerk/nextjs';
-import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Eye, Edit, Save, X } from 'lucide-react';
@@ -25,8 +26,19 @@ import {
 
 import { toast } from 'sonner';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { soundManager } from '@/lib/SoundManager';
 
 export default function PreviewClient({ messageTip }: { messageTip?: string }) {
+  const [isLoadingComplete, setIsLoadingComplete] = useState(false);
+  const [localResumeData, setLocalResumeData] = useState<ResumeData>();
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [showDiscardConfirmation, setShowDiscardConfirmation] = useState(false);
+  const [showModalSiteLive, setModalSiteLive] = useState(false);
+  const [mobileLeftPressed, setMobileLeftPressed] = useState(false);
+  const [mobileRightPressed, setMobileRightPressed] = useState(false);
+  const [mobileJumpPressed, setMobileJumpPressed] = useState(false);
+
   const { user } = useUser();
   const {
     resumeQuery,
@@ -34,24 +46,22 @@ export default function PreviewClient({ messageTip }: { messageTip?: string }) {
     usernameQuery,
     saveResumeDataMutation,
   } = useUserActions();
-  const [showModalSiteLive, setModalSiteLive] = useState(false);
-  const [localResumeData, setLocalResumeData] = useState<ResumeData>();
-  const [isEditMode, setIsEditMode] = useState(false);
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const [showDiscardConfirmation, setShowDiscardConfirmation] = useState(false);
 
   const isMobile = useIsMobile();
-  const [mobileLeftPressed, setMobileLeftPressed] = useState(false);
-  const [mobileRightPressed, setMobileRightPressed] = useState(false);
-  const [mobileJumpPressed, setMobileJumpPressed] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoadingComplete(true); // Set loading complete after 10 seconds
+    }, 10000); // 10 seconds
+
+    return () => clearTimeout(timer); // Cleanup timer on unmount
+  }, []);
 
   useEffect(() => {
     if (resumeQuery.data?.resume?.resumeData) {
       setLocalResumeData(resumeQuery.data?.resume?.resumeData);
     }
   }, [resumeQuery.data?.resume?.resumeData]);
-
-  console.log('resumeQuery', resumeQuery.data);
 
   const handleSaveChanges = async () => {
     if (!localResumeData) {
@@ -91,6 +101,10 @@ export default function PreviewClient({ messageTip }: { messageTip?: string }) {
     setLocalResumeData(newResume);
     setHasUnsavedChanges(true);
   };
+
+  if (!isLoadingComplete) {
+    return <CustomLoader redirectPath="/preview" />;
+  }
 
   if (
     resumeQuery.isLoading ||
@@ -152,7 +166,7 @@ export default function PreviewClient({ messageTip }: { messageTip?: string }) {
   );
 
   return (
-    <div className="w-full min-h-screen bg-background flex flex-col gap-4 pb-8">
+    <div className="w-full min-h-screen bg-background flex flex-col gap-4 pb-8 select-none">
       {messageTip && (
         <div className="max-w-3xl mx-auto w-full md:px-0 px-4">
           <div className="bg-amber-50 border border-amber-200 text-amber-800 rounded-md p-4 flex items-start">
@@ -241,7 +255,7 @@ export default function PreviewClient({ messageTip }: { messageTip?: string }) {
         )}
       </div>
 
-      <div className="max-w-3xl mx-auto w-full md:rounded-lg border-[0.5px] border-neutral-300 flex items-center justify-between px-4">
+      <div className="max-w-3xl mx-auto w-full md:rounded-lg border-[0.5px] border-neutral-300 flex items-center justify-between">
         {isEditMode ? (
           <EditResume
             resume={localResumeData}
@@ -290,23 +304,7 @@ export default function PreviewClient({ messageTip }: { messageTip?: string }) {
       {isMobile && !isEditMode && (
         <>
           <button
-            style={{
-              position: 'fixed',
-              bottom: '30px',
-              left: '30px',
-              zIndex: 1000,
-              padding: '10px',
-              borderRadius: '50%',
-              background: 'rgba(255, 255, 255, 0.7)',
-              border: '2px solid white',
-              color: 'black',
-              fontSize: '24px',
-              width: '60px',
-              height: '60px',
-              cursor: 'pointer',
-              touchAction: 'none',
-              userSelect: 'none',
-            }}
+            className="fixed bottom-8 left-8 z-50 p-2 rounded-sm bg-white/70 border-2 border-white text-black text-2xl w-15 h-15 cursor-pointer touch-none select-none"
             onPointerDown={(e) => {
               e.stopPropagation();
               setMobileLeftPressed(true);
@@ -330,24 +328,7 @@ export default function PreviewClient({ messageTip }: { messageTip?: string }) {
             &lt;
           </button>
           <button
-            style={{
-              position: 'fixed',
-              bottom: '30px',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              zIndex: 1000,
-              padding: '10px',
-              borderRadius: '10px',
-              background: 'rgba(255, 255, 255, 0.7)',
-              border: '2px solid white',
-              color: 'black',
-              fontSize: '18px',
-              width: '100px',
-              height: '50px',
-              cursor: 'pointer',
-              touchAction: 'none',
-              userSelect: 'none',
-            }}
+            className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50 p-2 rounded-lg bg-white/70 border-2 border-white text-black text-lg w-24 h-12 cursor-pointer touch-none select-none"
             onPointerDown={(e) => {
               e.stopPropagation();
               setMobileJumpPressed(true);
@@ -368,26 +349,9 @@ export default function PreviewClient({ messageTip }: { messageTip?: string }) {
             }}
             onContextMenu={(e) => e.preventDefault()}
           >
-            Jump
           </button>
           <button
-            style={{
-              position: 'fixed',
-              bottom: '30px',
-              right: '30px',
-              zIndex: 1000,
-              padding: '10px',
-              borderRadius: '50%',
-              background: 'rgba(255, 255, 255, 0.7)',
-              border: '2px solid white',
-              color: 'black',
-              fontSize: '24px',
-              width: '60px',
-              height: '60px',
-              cursor: 'pointer',
-              touchAction: 'none',
-              userSelect: 'none',
-            }}
+            className="fixed bottom-8 right-8 z-50 p-2 rounded-sm bg-white/70 border-2 border-white text-black text-2xl w-15 h-15 cursor-pointer touch-none select-none"
             onPointerDown={(e) => {
               e.stopPropagation();
               setMobileRightPressed(true);
