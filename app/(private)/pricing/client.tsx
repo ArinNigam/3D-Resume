@@ -130,7 +130,7 @@ export function PricingForm() {
                   name="phoneNumber"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-sm font-medium ">WhatsApp Number (Registered on Self.so)*</FormLabel>
+                      <FormLabel className="text-sm font-medium ">WhatsApp Number (Registered on Resume Builder)*</FormLabel>
                       <FormControl>
                         <PhoneInput
                           international

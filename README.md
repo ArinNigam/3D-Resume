@@ -1,4 +1,4 @@
-<a href="https://www.self.so">
+<a href="https://gta-vi-resume.vercel.app">
   <img alt="Self" src="./public/og.png">
   <h1 align="center">Self</h1>
 </a>
